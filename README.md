@@ -1,4 +1,4 @@
-# Grid Sandbox  [![Abrir Grid Sandbox](https://img.shields.io/badge/Abrir-Grid_Sandbox-blue?style=for-the-badge)](https://gridsandbox.vercel.app/)
+# Grid Sandbox      [![Abrir Grid Sandbox](https://img.shields.io/badge/Abrir-Grid_Sandbox-blue?style=for-the-badge)](https://gridsandbox.vercel.app/)
 
 **Prancheta digital para prototipar grids e diagramações antes de abrir o Illustrator, o Figma ou o Photoshop.**
 
