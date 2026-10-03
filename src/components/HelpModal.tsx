@@ -78,6 +78,8 @@ export const REPO_URL = 'https://github.com/dduenhas/grid-sandbox';
 const AUTHOR_URL = 'https://diegoduenhas.com.br';
 const EMAIL = 'dduenhas@gmail.com';
 const YEAR = 2026;
+const VIDEO_URL = 'https://www.youtube.com/shorts/3FZIsShcU08';
+const VIDEO_THUMB = '/inspiracao-will-paterson.jpg';
 
 export function AboutModal() {
   const s = useStore();
@@ -117,6 +119,24 @@ export function AboutModal() {
           </p>
         </div>
         <div>
+          <h4>Inspiração</h4>
+          <a
+            className="about-video"
+            href={VIDEO_URL}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Assistir no YouTube: How Does The Grid System Work?, de Will Paterson"
+          >
+            <img src={VIDEO_THUMB} alt="Cena do vídeo How Does The Grid System Work?, de Will Paterson" loading="lazy" />
+          </a>
+          <p>
+            A ideia surgiu ao assistir ao vídeo{' '}
+            <a href={VIDEO_URL} target="_blank" rel="noreferrer">
+              “How Does The Grid System Work?”
+            </a>
+            , do designer e youtuber Will Paterson. Ele me lembrou que construir com o grid adequado exige muita prática e estudo teórico até saber qual escolher.
+            Exemplos concretos, cada um aplicado ao uso em que funciona melhor, podem ajudar a encontrar o grid certo para cada projeto.
+          </p>
           <h4>Autor</h4>
           <p>
             Desenvolvido por{' '}

@@ -1345,6 +1345,21 @@ textarea.input {
   text-decoration-color: var(--accent);
   text-underline-offset: 2px;
 }
+.about-video {
+  float: right;
+  width: 96px;
+  margin: 0 0 10px 14px;
+  border: 1px solid var(--rule);
+  overflow: hidden;
+}
+.about-video img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.about-video + p {
+  min-height: 170px;
+}
 .nums.about-links th,
 .nums.about-links td {
   text-align: left;
