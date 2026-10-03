@@ -6,6 +6,7 @@ import { measureChars } from './typeScale';
 import { bookLayout } from './bookLayout';
 import { PAGE_TYPES, isBookArchetype } from '../content/book';
 import { bodySizeFor, scoreBook } from './bookScore';
+import { bilingual, bilingualList, tx } from '../i18n';
 
 export type BlockKind = 'headline' | 'kicker' | 'subhead' | 'body' | 'image' | 'caption' | 'quote' | 'folio' | 'logo' | 'shape' | 'chapter' | 'epigraph' | 'toc' | 'notes';
 export type Tone = 'ink' | 'accent' | 'accent2' | 'accent3' | 'image';
@@ -41,22 +42,40 @@ export interface PageFurniture {
   recto: boolean;
 }
 
-export const BLOCK_LABEL: Record<BlockKind, string> = {
-  chapter: 'Abertura de capítulo',
-  epigraph: 'Epígrafe',
-  toc: 'Sumário',
-  notes: 'Notas',
-  headline: 'Título',
-  kicker: 'Chapéu',
-  subhead: 'Linha fina',
-  body: 'Texto corrido',
-  image: 'Imagem',
-  caption: 'Legenda',
-  quote: 'Citação',
-  folio: 'Fólio',
-  logo: 'Marca',
-  shape: 'Forma',
-};
+export const BLOCK_LABEL: Record<BlockKind, string> = bilingual(
+  {
+    chapter: 'Abertura de capítulo',
+    epigraph: 'Epígrafe',
+    toc: 'Sumário',
+    notes: 'Notas',
+    headline: 'Título',
+    kicker: 'Chapéu',
+    subhead: 'Linha fina',
+    body: 'Texto corrido',
+    image: 'Imagem',
+    caption: 'Legenda',
+    quote: 'Citação',
+    folio: 'Fólio',
+    logo: 'Marca',
+    shape: 'Forma',
+  },
+  {
+    chapter: 'Chapter opening',
+    epigraph: 'Epigraph',
+    toc: 'Contents',
+    notes: 'Notes',
+    headline: 'Headline',
+    kicker: 'Kicker',
+    subhead: 'Subhead',
+    body: 'Body text',
+    image: 'Image',
+    caption: 'Caption',
+    quote: 'Pull quote',
+    folio: 'Folio',
+    logo: 'Logo',
+    shape: 'Shape',
+  },
+);
 
 type Anchor = 'top' | 'bottom' | 'below' | 'beside' | 'near-image' | 'left' | 'right' | 'center' | 'any' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
@@ -81,7 +100,7 @@ export interface Archetype {
 
 const small: [number, number] = [0.04, 0.09];
 
-export const ARCHETYPES: Archetype[] = [
+const ARCHETYPES_PT: Archetype[] = [
   {
     id: 'hero',
     name: 'Cartaz / hero',
@@ -212,8 +231,31 @@ export const ARCHETYPES: Archetype[] = [
       { kind: 'kicker', w: [0.2, 0.4], h: small, at: 'top-right', p: 0.7 },
     ],
   },
-  ...PAGE_TYPES.map((t) => ({ id: t.id, name: t.name, description: t.description, reqs: () => [], book: true })),
+  ...PAGE_TYPES.map((t) => ({
+    id: t.id,
+    get name() {
+      return t.name;
+    },
+    get description() {
+      return t.description;
+    },
+    reqs: () => [],
+    book: true,
+  })),
 ];
+
+export const ARCHETYPES: Archetype[] = bilingualList(ARCHETYPES_PT, {
+  hero: { name: 'Poster / hero', description: 'A dominant headline and a large image create a single entry point; supporting text stays small, anchored at the bottom.' },
+  editorial: { name: 'Editorial', description: 'Kicker, headline, subhead, image and text columns: several entry points in a clear hierarchy, like a magazine.' },
+  catalog: { name: 'Catalog', description: 'Repeated images in equal modules with captions: the regular rhythm of the modular grid makes comparison immediate.' },
+  typoster: { name: 'Typographic poster', description: 'Type is the image: a huge headline fills most of the fields and small text creates contrast of scale.' },
+  mosaic: { name: 'Mosaic', description: 'Images of different sizes fitted into multiples of modules; the headline is one more piece of the puzzle.' },
+  zpattern: { name: 'Z pattern', description: 'The eye travels a Z: logo at top left, navigation at right, a diagonal through the highlight and a call to action at bottom right.' },
+  fpattern: { name: 'F pattern', description: 'Scanning: strong horizontal bands at the top and a dense left column; ideal for informational content.' },
+  asymmetric: { name: 'Asymmetric', description: 'Balance by compensation: a narrow headline column against a large image mass, with no central axis.' },
+  classical: { name: 'Classical symmetric', description: 'Central axis, headline in capitals over the text block and a centered folio: the traditional order of the book.' },
+  constructivist: { name: 'Constructivist / dynamic', description: 'Geometric shapes and a diagonal headline create tension and movement; small text anchors the composition.' },
+});
 
 export const getArchetype = (id: string) => ARCHETYPES.find((a) => a.id === id) ?? ARCHETYPES[0];
 
@@ -613,36 +655,52 @@ export function scoreLayout(blocks: Block[], grid: Grid, school: School, archety
   const goodM = measures.filter((m) => m >= 40 && m <= 80).length;
   const measScore = bodies.length ? goodM / bodies.length : 0.8;
 
+  const schoolShort = school.name.split(' /')[0];
   const parts: ScorePart[] = [
     {
       id: 'whitespace',
-      label: 'Espaço branco',
+      label: tx('Espaço branco', 'White space'),
       value: wsScore,
-      note: `${Math.round(ws * 100)}% dos campos livres (ideal para ${school.name.split(' /')[0]}: ~${Math.round(school.whitespace * 100)}%). ${ws < school.whitespace - 0.1 ? 'A página está densa; remova um elemento ou reduza spans.' : ws > school.whitespace + 0.15 ? 'Muito vazio; o vazio precisa de tensão com uma massa forte.' : 'O vazio está ativo e dá respiro.'}`,
+      note: tx(
+        `${Math.round(ws * 100)}% dos campos livres (ideal para ${schoolShort}: ~${Math.round(school.whitespace * 100)}%). ${ws < school.whitespace - 0.1 ? 'A página está densa; remova um elemento ou reduza spans.' : ws > school.whitespace + 0.15 ? 'Muito vazio; o vazio precisa de tensão com uma massa forte.' : 'O vazio está ativo e dá respiro.'}`,
+        `${Math.round(ws * 100)}% of fields empty (ideal for ${schoolShort}: ~${Math.round(school.whitespace * 100)}%). ${ws < school.whitespace - 0.1 ? 'The page is dense; remove an element or reduce spans.' : ws > school.whitespace + 0.15 ? 'Too empty; emptiness needs tension against a strong mass.' : 'The empty space is active and lets the page breathe.'}`,
+      ),
     },
     {
       id: 'alignment',
-      label: 'Alinhamento',
+      label: tx('Alinhamento', 'Alignment'),
       value: alignScore,
-      note: `${lefts.size} eixos verticais e ${tops.size} linhas de fluxo para ${blocks.length} elementos. ${alignScore > 0.65 ? 'Poucos eixos compartilhados criam ordem.' : 'Muitos eixos diferentes; tente alinhar inícios de blocos à mesma coluna.'}`,
+      note: tx(
+        `${lefts.size} eixos verticais e ${tops.size} linhas de fluxo para ${blocks.length} elementos. ${alignScore > 0.65 ? 'Poucos eixos compartilhados criam ordem.' : 'Muitos eixos diferentes; tente alinhar inícios de blocos à mesma coluna.'}`,
+        `${lefts.size} vertical axes and ${tops.size} flowlines for ${blocks.length} elements. ${alignScore > 0.65 ? 'Few shared axes create order.' : 'Too many different axes; try starting blocks on the same column.'}`,
+      ),
     },
     {
       id: 'hierarchy',
-      label: 'Hierarquia',
+      label: tx('Hierarquia', 'Hierarchy'),
       value: hierScore,
-      note: head.length ? (hierScore > 0.7 ? 'O título domina com clareza: um ponto de entrada inequívoco.' : 'O título compete com os blocos de texto; aumente seu span ou reduza os demais.') : 'Sem título: falta um ponto de entrada.',
+      note: head.length
+        ? hierScore > 0.7
+          ? tx('O título domina com clareza: um ponto de entrada inequívoco.', 'The headline clearly dominates: an unmistakable entry point.')
+          : tx('O título compete com os blocos de texto; aumente seu span ou reduza os demais.', 'The headline competes with the text blocks; enlarge its span or shrink the others.')
+        : tx('Sem título: falta um ponto de entrada.', 'No headline: the page lacks an entry point.'),
     },
     {
       id: 'balance',
-      label: 'Equilíbrio',
+      label: tx('Equilíbrio', 'Balance'),
       value: balScore,
-      note: `Centro de massa visual em (${Math.round(cx * 100)}%, ${Math.round(cy * 100)}%). ${school.balanceOffset > 0.1 ? 'Esta escola pede assimetria equilibrada, não centro geométrico.' : 'Esta escola pede eixo central e simetria.'}`,
+      note: tx(
+        `Centro de massa visual em (${Math.round(cx * 100)}%, ${Math.round(cy * 100)}%). ${school.balanceOffset > 0.1 ? 'Esta escola pede assimetria equilibrada, não centro geométrico.' : 'Esta escola pede eixo central e simetria.'}`,
+        `Visual center of mass at (${Math.round(cx * 100)}%, ${Math.round(cy * 100)}%). ${school.balanceOffset > 0.1 ? 'This school calls for balanced asymmetry, not the geometric center.' : 'This school calls for a central axis and symmetry.'}`,
+      ),
     },
     {
       id: 'measure',
-      label: 'Medida do texto',
+      label: tx('Medida do texto', 'Line length'),
       value: measScore,
-      note: bodies.length ? `Linhas de ${measures.join(', ')} caracteres. A faixa confortável é de 45 a 75 (Bringhurst).` : 'Sem texto corrido nesta variação.',
+      note: bodies.length
+        ? tx(`Linhas de ${measures.join(', ')} caracteres. A faixa confortável é de 45 a 75 (Bringhurst).`, `Lines of ${measures.join(', ')} characters. The comfortable range is 45 to 75 (Bringhurst).`)
+        : tx('Sem texto corrido nesta variação.', 'No body text in this variation.'),
     },
   ];
   const total = Math.round((wsScore * 0.2 + alignScore * 0.2 + hierScore * 0.25 + balScore * 0.15 + measScore * 0.2) * 100);

@@ -19,6 +19,7 @@ import {
   type BookStyle,
 } from '../content/book';
 import { bookOf, familiesOf } from '../content/bookOf';
+import { tx } from '../i18n';
 
 interface Page {
   c0: number;
@@ -224,9 +225,9 @@ export function bookLayout(o: GenOptions, archetype: BookArchetypeId): Layout {
       const capRows = capInNote ? 0 : 1;
       const imgRs = clampI(R * range(rng, 0.35, 0.5), 1, Math.max(1, R - capRows - 1));
       const r0 = top ? 0 : R - imgRs - capRows;
-      const img = add('image', c, r0, cs, imgRs, `Figura ${chapter}.${1 + Math.floor(rng() * 4)}`);
+      const img = add('image', c, r0, cs, imgRs, `${tx('Figura', 'Figure')} ${chapter}.${1 + Math.floor(rng() * 4)}`);
       if (img) {
-        const cap = `Fig. ${chapter}.1 — ${pick(rng, ['Prova de composição sobre papel pólen.', 'Página dupla do manuscrito original.', 'Estudo de margens a lápis.'])}`;
+        const cap = `Fig. ${chapter}.1 — ${pick(rng, tx(['Prova de composição sobre papel pólen.', 'Página dupla do manuscrito original.', 'Estudo de margens a lápis.'], ['Typesetting proof on cream book paper.', 'Spread from the original manuscript.', 'Margin study in pencil.']))}`;
         if (capInNote) add('caption', figPage.note!, img.r + img.rs - 1, 1, rowsFor(3), cap);
         else add('caption', c, img.r + img.rs, cs, 1, cap);
       }
@@ -278,7 +279,10 @@ export function bookLayout(o: GenOptions, archetype: BookArchetypeId): Layout {
         const vc = verso.text[0][0];
         const vcs = verso.text[verso.text.length - 1][0] + verso.text[verso.text.length - 1][1] - vc;
         const fams = familiesOf(o.school).join(', ');
-        const colophon = [`© 2026 ${author}`, 'Todos os direitos reservados.', `Projeto gráfico: Grid Sandbox`, `Composto em ${fams}`, 'Impresso em papel pólen 80 g/m²', publisher].join('\n');
+        const colophon = tx(
+          [`© 2026 ${author}`, 'Todos os direitos reservados.', `Projeto gráfico: Grid Sandbox`, `Composto em ${fams}`, 'Impresso em papel pólen 80 g/m²', publisher],
+          [`© 2026 ${author}`, 'All rights reserved.', `Book design: Grid Sandbox`, `Set in ${fams}`, 'Printed on 80 gsm cream book paper', publisher],
+        ).join('\n');
         add('caption', vc, R - rowsFor(7), vcs, rowsFor(7), colophon, { align: 'left' });
       }
       break;
@@ -290,7 +294,7 @@ export function bookLayout(o: GenOptions, archetype: BookArchetypeId): Layout {
       const cs = recto.text[recto.text.length - 1][0] + recto.text[recto.text.length - 1][1] - c;
       const r = clampI(R * 0.3, 0, R - 3);
       const n = 1 + Math.floor(rng() * 3);
-      add('kicker', c, r, cs, 1, `Parte ${['Um', 'Dois', 'Três', 'Quatro'][n - 1]}`);
+      add('kicker', c, r, cs, 1, tx(`Parte ${['Um', 'Dois', 'Três', 'Quatro'][n - 1]}`, `Part ${['One', 'Two', 'Three', 'Four'][n - 1]}`));
       add('headline', c, r + 1, cs, 2, PART_TITLES[(n - 1) % PART_TITLES.length]);
       break;
     }

@@ -1,5 +1,7 @@
 import type { GridTypeId } from '../core/gridEngine';
 import type { BookArchetypeId, BookStyle } from './book';
+import { bilingualList } from '../i18n';
+import { SCHOOLS_EN } from './en/schools';
 
 export type ArchetypeId =
   | BookArchetypeId
@@ -82,7 +84,7 @@ const sans = 'Helvetica Neue, Arial, sans-serif';
 const serif = 'Georgia, Times New Roman, serif';
 const mono = 'Courier New, monospace';
 
-export const SCHOOLS: School[] = [
+const SCHOOLS_PT: School[] = [
   {
     id: 'swiss',
     name: 'Suíço / Estilo Tipográfico Internacional',
@@ -651,6 +653,8 @@ export const SCHOOLS: School[] = [
   },
   ...BOOK_SCHOOLS(),
 ];
+
+export const SCHOOLS: School[] = bilingualList(SCHOOLS_PT, SCHOOLS_EN);
 
 function BOOK_SCHOOLS(): School[] {
   const bookArch: ArchetypeId[] = ['chapter', 'sections', 'running', 'figure', 'notes', 'contents', 'titlepage', 'part', 'epigraph'];

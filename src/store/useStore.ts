@@ -16,6 +16,7 @@ import type { PlaceholderLang } from '../content/placeholders';
 import { bindingOf, type BindingId } from '../content/book';
 import { ptToDoc } from '../core/units';
 import { CAPTIONS, SUBHEADS, bodyText } from '../content/placeholders';
+import { bilingual, setLang, tx, type UiLang } from '../i18n';
 
 export interface Overlays {
   margins: boolean;
@@ -48,6 +49,8 @@ export interface State {
   variation: number;
   archetypeLock: ArchetypeId | null;
   lang: PlaceholderLang;
+  /** Interface language; also drives the sample content laid out on the page. */
+  uiLang: UiLang;
   edits: Record<string, Block[]>;
   pinned: Block[];
   past: (Block[] | null)[];
@@ -75,6 +78,7 @@ export interface State {
 
 export interface Actions {
   set: (p: Partial<State>) => void;
+  setUiLang: (l: UiLang) => void;
   setFormat: (id: string) => void;
   toggleOrientation: () => void;
   setSchool: (id: string, openExamples?: boolean) => void;
@@ -122,6 +126,7 @@ const initial: State = {
   variation: 0,
   archetypeLock: null,
   lang: 'pt',
+  uiLang: 'pt',
   edits: {},
   pinned: [],
   past: [],
@@ -147,21 +152,30 @@ const initial: State = {
   fontsVersion: 0,
 };
 
-const BOOK_DEFAULT_TEXT: Partial<Record<BlockKind, string>> = {
-  chapter: '1|A forma do livro',
-  epigraph: 'A tipografia existe para honrar o conteúdo.|Robert Bringhurst',
-  toc: '1|A forma do livro|9\n2|Margens e mancha|27\n3|A página dupla|45\n4|Hierarquia|63',
-  notes: '¹|Ver Tschichold, A forma do livro, 1975.\n²|Bringhurst, Elementos do estilo tipográfico, 2.1.2.',
-};
+const BOOK_DEFAULT_TEXT: Partial<Record<BlockKind, string>> = bilingual(
+  {
+    chapter: '1|A forma do livro',
+    epigraph: 'A tipografia existe para honrar o conteúdo.|Robert Bringhurst',
+    toc: '1|A forma do livro|9\n2|Margens e mancha|27\n3|A página dupla|45\n4|Hierarquia|63',
+    notes: '¹|Ver Tschichold, A forma do livro, 1975.\n²|Bringhurst, Elementos do estilo tipográfico, 2.1.2.',
+  },
+  {
+    chapter: '1|The form of the book',
+    epigraph: 'Typography exists to honor content.|Robert Bringhurst',
+    toc: '1|The form of the book|9\n2|Margins and text block|27\n3|The double-page spread|45\n4|Hierarchy|63',
+    notes: '¹|See Tschichold, The Form of the Book, 1975.\n²|Bringhurst, The Elements of Typographic Style, 2.1.2.',
+  },
+);
 
 /* ---------- Derived state (memoized on its inputs) ---------- */
 
 type DeriveInput = Pick<
   State,
-  'formatId' | 'orientation' | 'custom' | 'spread' | 'schoolId' | 'gridTypeId' | 'gridOverrides' | 'variation' | 'archetypeLock' | 'lang' | 'edits' | 'pinned' | 'binding'
+  'formatId' | 'orientation' | 'custom' | 'spread' | 'schoolId' | 'gridTypeId' | 'gridOverrides' | 'variation' | 'archetypeLock' | 'lang' | 'uiLang' | 'edits' | 'pinned' | 'binding'
 >;
 
 function computeDerived(s: DeriveInput) {
+  setLang(s.uiLang);
   const format = getFormat(s.formatId, s.custom);
   const school = getSchool(s.schoolId);
   const base = pageSize(format, s.orientation);
@@ -200,7 +214,7 @@ export type Derived = ReturnType<typeof computeDerived>;
 
 let lastIn: DeriveInput | null = null;
 let lastOut: Derived | null = null;
-const KEYS: (keyof DeriveInput)[] = ['formatId', 'orientation', 'custom', 'spread', 'schoolId', 'gridTypeId', 'gridOverrides', 'variation', 'archetypeLock', 'lang', 'edits', 'pinned', 'binding'];
+const KEYS: (keyof DeriveInput)[] = ['formatId', 'orientation', 'custom', 'spread', 'schoolId', 'gridTypeId', 'gridOverrides', 'variation', 'archetypeLock', 'lang', 'uiLang', 'edits', 'pinned', 'binding'];
 
 export function derive(s: DeriveInput): Derived {
   if (lastIn && lastOut && KEYS.every((k) => lastIn![k] === s[k])) return lastOut;
@@ -234,6 +248,10 @@ export const useStore = create<State & Actions>()(
       return {
         ...initial,
         set: (p) => set(p),
+        setUiLang: (l) => {
+          setLang(l);
+          set({ uiLang: l });
+        },
         setFormat: (id) => {
           const f = getFormat(id, get().custom);
           set({ formatId: id, orientation: f.defaultOrientation, gridOverrides: {}, variation: 0, ...regen });
@@ -315,7 +333,7 @@ export const useStore = create<State & Actions>()(
                         : kind === 'folio'
                           ? '1'
                           : kind === 'image'
-                            ? `Imagem ${n}`
+                            ? `${tx('Imagem', 'Image')} ${n}`
                             : (BOOK_DEFAULT_TEXT[kind] ?? '');
           const block: Block = {
             id,
@@ -399,6 +417,7 @@ export const useStore = create<State & Actions>()(
             const data = JSON.parse(json);
             if (data?.app !== 'grid-sandbox' || typeof data.state !== 'object') return false;
             const st = data.state as Partial<State>;
+            delete st.uiLang;
             if (st.formatId && st.formatId !== 'custom' && !FORMATS.some((f) => f.id === st.formatId)) return false;
             set({ ...st, ...regen });
             return true;
@@ -422,6 +441,7 @@ export const useStore = create<State & Actions>()(
         variation: s.variation,
         archetypeLock: s.archetypeLock,
         lang: s.lang,
+        uiLang: s.uiLang,
         edits: s.edits,
         pinned: s.pinned,
         mode: s.mode,
@@ -433,9 +453,14 @@ export const useStore = create<State & Actions>()(
         deskTheme: s.deskTheme,
         rightTab: s.rightTab,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state) setLang(state.uiLang);
+      },
     },
   ),
 );
+
+setLang(useStore.getState().uiLang);
 
 export const PROJECT_KEYS = [
   'formatId',

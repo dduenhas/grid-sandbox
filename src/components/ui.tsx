@@ -1,3 +1,4 @@
+import { tx } from '../i18n';
 import { useId, type ReactNode } from 'react';
 
 export function Section({ title, children, aside }: { title: string; children: ReactNode; aside?: ReactNode }) {
@@ -77,7 +78,7 @@ export function Modal({ title, onClose, children, wide }: { title: string; onClo
       <div className={`modal ${wide ? 'wide' : ''}`} role="dialog" aria-modal aria-label={title}>
         <header className="modal-head">
           <h2>{title}</h2>
-          <button className="icon-btn" onClick={onClose} aria-label="Fechar">
+          <button className="icon-btn" onClick={onClose} aria-label={tx('Fechar', 'Close')}>
             ×
           </button>
         </header>

@@ -1,4 +1,6 @@
 import type { PlaceholderLang } from './placeholders';
+import { bilingual, bilingualList, tx } from '../i18n';
+import * as EN from './en/book';
 
 /* ---------------- Book style: the recipe each book school carries ---------------- */
 
@@ -78,12 +80,14 @@ export interface BookStyle {
 
 export type BindingId = 'none' | 'sewn' | 'perfect' | 'wire';
 
-export const BINDINGS: { id: BindingId; name: string; mm: number; note: string }[] = [
+const BINDINGS_PT: { id: BindingId; name: string; mm: number; note: string }[] = [
   { id: 'none', name: 'Sem acréscimo', mm: 0, note: 'Margem interna como desenhada. Bom para estudar o cânone puro.' },
   { id: 'sewn', name: 'Costurada', mm: 2, note: 'Cadernos costurados abrem quase planos: basta um pequeno acréscimo na medianiz.' },
   { id: 'perfect', name: 'Brochura colada', mm: 5, note: 'Lombada colada (hot melt ou PUR) não abre por inteiro: some 3 a 6 mm, mais em livros grossos.' },
   { id: 'wire', name: 'Wire-o / espiral', mm: 10, note: 'A furação come a margem: reserve 8 a 12 mm além da margem desenhada.' },
 ];
+
+export const BINDINGS = bilingualList(BINDINGS_PT, EN.BINDINGS_EN);
 
 export const bindingOf = (id: BindingId) => BINDINGS.find((b) => b.id === id) ?? BINDINGS[0];
 
@@ -98,7 +102,7 @@ export interface PageType {
   rules: string[];
 }
 
-export const PAGE_TYPES: PageType[] = [
+const PAGE_TYPES_PT: PageType[] = [
   {
     id: 'chapter',
     name: 'Abertura de capítulo',
@@ -185,12 +189,14 @@ export const PAGE_TYPES: PageType[] = [
   },
 ];
 
+export const PAGE_TYPES = bilingualList(PAGE_TYPES_PT, EN.PAGE_TYPES_EN);
+
 export const pageType = (id: string) => PAGE_TYPES.find((p) => p.id === id);
 export const isBookArchetype = (id: string): id is BookArchetypeId => PAGE_TYPES.some((p) => p.id === id);
 
 /* ---------------- Theory ---------------- */
 
-export const BOOK_PRINCIPLES: { title: string; text: string; source: string }[] = [
+const BOOK_PRINCIPLES_PT: { title: string; text: string; source: string }[] = [
   {
     title: 'A unidade é a página dupla',
     text: 'O leitor vê sempre duas páginas. Margens, mancha e alinhamentos se julgam no par, e por isso a margem interna é a menor: as duas internas somadas formam a medianiz.',
@@ -233,7 +239,9 @@ export const BOOK_PRINCIPLES: { title: string; text: string; source: string }[] 
   },
 ];
 
-export const BOOK_CONCEPTS: { id: string; term: string; def: string }[] = [
+export const BOOK_PRINCIPLES = bilingual(BOOK_PRINCIPLES_PT, EN.BOOK_PRINCIPLES_EN);
+
+const BOOK_CONCEPTS_PT: { id: string; term: string; def: string }[] = [
   { id: 'recto', term: 'Recto e verso', def: 'Recto é a página ímpar, à direita; verso é a par, à esquerda. Capítulos clássicos abrem no recto.' },
   { id: 'medianiz', term: 'Medianiz e lombada', def: 'Medianiz é o branco entre as duas manchas da página dupla. A encadernação consome parte dela; por isso se soma um acréscimo à margem interna.' },
   { id: 'rebaixo', term: 'Rebaixo (afundamento)', def: 'Espaço em branco acima do título na abertura do capítulo, normalmente cerca de 1/3 da mancha.' },
@@ -250,15 +258,17 @@ export const BOOK_CONCEPTS: { id: string; term: string; def: string }[] = [
   { id: 'vinheta', term: 'Vinheta (ornamento)', def: 'Sinal como ❦ ou * * * que marca uma quebra de seção dentro do capítulo.' },
 ];
 
+export const BOOK_CONCEPTS = bilingual(BOOK_CONCEPTS_PT, EN.BOOK_CONCEPTS_EN);
+
 /* ---------------- Placeholder content ---------------- */
 
-export const BOOK_TITLES = ['O Desenho do Tempo', 'A Página Silenciosa', 'Memórias da Prancheta', 'Tratado da Forma Breve', 'O Livro Inacabado'];
-export const BOOK_SUBTITLES = ['e outros ensaios sobre a forma', 'romance', 'notas de um compositor', 'uma introdução à página'];
+export const BOOK_TITLES = bilingual(['O Desenho do Tempo', 'A Página Silenciosa', 'Memórias da Prancheta', 'Tratado da Forma Breve', 'O Livro Inacabado'], EN.BOOK_TITLES_EN);
+export const BOOK_SUBTITLES = bilingual(['e outros ensaios sobre a forma', 'romance', 'notas de um compositor', 'uma introdução à página'], EN.BOOK_SUBTITLES_EN);
 export const AUTHORS = ['Helena Marques', 'Tomás Albuquerque', 'Clara Vieira Neto', 'João de Barros Leme'];
-export const PUBLISHERS = ['Editora Prancheta', 'Oficina do Livro', 'Edições Linha de Base'];
-export const PART_TITLES = ['A oficina', 'O ofício', 'A forma', 'O retorno'];
+export const PUBLISHERS = bilingual(['Editora Prancheta', 'Oficina do Livro', 'Edições Linha de Base'], EN.PUBLISHERS_EN);
+export const PART_TITLES = bilingual(['A oficina', 'O ofício', 'A forma', 'O retorno'], EN.PART_TITLES_EN);
 
-export const CHAPTER_TITLES = [
+const CHAPTER_TITLES_PT = [
   'A casa das margens',
   'O peso do branco',
   'Sobre a linha de base',
@@ -271,11 +281,13 @@ export const CHAPTER_TITLES = [
   'A última prova',
 ];
 
-export const HEADS_A = ['A forma do bloco', 'Proporção e medida', 'O ritmo da página', 'Entre a régua e o lápis'];
-export const HEADS_B = ['Primeiras provas', 'O compositor e a caixa', 'Uma questão de cor', 'Margens e lombada'];
-export const HEADS_C = ['Da medida.', 'Do recuo.', 'Das notas.', 'Da entrelinha.'];
+export const CHAPTER_TITLES = bilingual(CHAPTER_TITLES_PT, EN.CHAPTER_TITLES_EN);
 
-export const EPIGRAPHS = [
+export const HEADS_A = bilingual(['A forma do bloco', 'Proporção e medida', 'O ritmo da página', 'Entre a régua e o lápis'], EN.HEADS_A_EN);
+export const HEADS_B = bilingual(['Primeiras provas', 'O compositor e a caixa', 'Uma questão de cor', 'Margens e lombada'], EN.HEADS_B_EN);
+export const HEADS_C = bilingual(['Da medida.', 'Do recuo.', 'Das notas.', 'Da entrelinha.'], EN.HEADS_C_EN);
+
+const EPIGRAPHS_PT = [
   { text: 'A tipografia é o ofício de dar forma visível e durável à linguagem humana.', who: 'Robert Bringhurst' },
   { text: 'A impressão deve ser invisível.', who: 'Beatrice Warde, A taça de cristal' },
   { text: 'Matamos o tempo; o tempo nos enterra.', who: 'Machado de Assis, Memórias póstumas de Brás Cubas' },
@@ -283,17 +295,21 @@ export const EPIGRAPHS = [
   { text: 'No meio do caminho tinha uma pedra.', who: 'Carlos Drummond de Andrade' },
 ];
 
+export const EPIGRAPHS = bilingual(EPIGRAPHS_PT, EN.EPIGRAPHS_EN);
+
 export const SUPERSCRIPTS = ['¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹'];
 
-export const DEDICATIONS = ['Para quem compõe, linha a linha, em silêncio.', 'Aos tipógrafos anônimos de todas as oficinas.', 'Para M., que leu as primeiras provas.'];
+export const DEDICATIONS = bilingual(['Para quem compõe, linha a linha, em silêncio.', 'Aos tipógrafos anônimos de todas as oficinas.', 'Para M., que leu as primeiras provas.'], EN.DEDICATIONS_EN);
 
-export const NOTES = [
+const NOTES_PT = [
   'Sobre o cânone das margens, ver Tschichold, A forma do livro.',
   'A medida ideal varia com o corpo e com a largura da família tipográfica.',
   'A capitular descende das iniciais iluminadas dos manuscritos medievais.',
   'Bringhurst recomenda entre 45 e 75 caracteres por linha.',
   'Morris, The Ideal Book: a unidade do livro é a página dupla.',
 ];
+
+export const NOTES = bilingual(NOTES_PT, EN.NOTES_EN);
 
 const PROSE_PT = [
   'Naquela manhã a oficina cheirava a tinta e a papel úmido. O compositor abriu a caixa de tipos, escolheu o corpo e começou a formar as primeiras palavras do capítulo, uma a uma, sem pressa, como quem constrói um muro de pedras pequenas.',
@@ -324,7 +340,7 @@ const PROSE_GRID = [
   'Uma família completa, com romano, itálico e versaletes, oferece hierarquia suficiente para quase qualquer livro. Uma segunda família só entra quando tem um papel claro e diferente.',
 ];
 
-const PROSE: Record<PlaceholderLang, string[]> = { pt: PROSE_PT, latin: PROSE_LATIN, grid: PROSE_GRID };
+const PROSE: Record<PlaceholderLang, string[]> = bilingual({ pt: PROSE_PT, latin: PROSE_LATIN, grid: PROSE_GRID }, { pt: EN.PROSE_EN, grid: EN.PROSE_GRID_EN });
 
 export function prose(lang: PlaceholderLang, i: number, n: number): string[] {
   const bank = PROSE[lang];
@@ -338,7 +354,7 @@ const ROMAN: [number, string][] = [
   [4, 'IV'],
   [1, 'I'],
 ];
-const WORDS = ['Zero', 'Um', 'Dois', 'Três', 'Quatro', 'Cinco', 'Seis', 'Sete', 'Oito', 'Nove', 'Dez', 'Onze', 'Doze', 'Treze', 'Catorze', 'Quinze', 'Dezesseis', 'Dezessete', 'Dezoito', 'Dezenove', 'Vinte'];
+const WORDS_PT = ['Zero', 'Um', 'Dois', 'Três', 'Quatro', 'Cinco', 'Seis', 'Sete', 'Oito', 'Nove', 'Dez', 'Onze', 'Doze', 'Treze', 'Catorze', 'Quinze', 'Dezesseis', 'Dezessete', 'Dezoito', 'Dezenove', 'Vinte'];
 
 export function toRoman(n: number): string {
   let out = '';
@@ -352,7 +368,7 @@ export function toRoman(n: number): string {
 }
 
 export function chapterNumber(n: number, form: BookStyle['chapter']['number']): string {
-  return form === 'roman' ? toRoman(n) : form === 'word' ? (WORDS[n] ?? String(n)) : String(n);
+  return form === 'roman' ? toRoman(n) : form === 'word' ? (tx(WORDS_PT, EN.WORDS_EN)[n] ?? String(n)) : String(n);
 }
 
 /**
@@ -360,4 +376,5 @@ export function chapterNumber(n: number, form: BookStyle['chapter']['number']): 
  *   paragraphs separated by \n · "# " head A · "## " head B · "### Head|text" run-in head C
  *   "***" section break · "> " extract
  */
-export const MARKUP_HELP = 'Um parágrafo por linha. “# ” título A, “## ” título B, “### Título|texto” título corrido C, “***” quebra de seção, “> ” citação recuada.';
+const MARKUP_HELP_PT = 'Um parágrafo por linha. “# ” título A, “## ” título B, “### Título|texto” título corrido C, “***” quebra de seção, “> ” citação recuada.';
+export const markupHelp = () => tx(MARKUP_HELP_PT, EN.MARKUP_HELP_EN);

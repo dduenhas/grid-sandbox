@@ -1,14 +1,16 @@
 import { SCHOOLS } from '../content/schools';
 import { FORMATS } from '../core/formats';
 import { useDerived, useStore } from '../store/useStore';
+import { useT } from '../hooks/useT';
 import { Icon } from './Icon';
 
 export function TopBar() {
   const s = useStore();
   const d = useDerived();
+  const t = useT();
   return (
     <header className="topbar">
-      <button className="icon-btn only-narrow" onClick={() => s.set({ sheet: s.sheet === 'left' ? null : 'left' })} aria-label="Grids e formato">
+      <button className="icon-btn only-narrow" onClick={() => s.set({ sheet: s.sheet === 'left' ? null : 'left' })} aria-label={t('Grids e formato', 'Grids and format')}>
         <Icon name="grid" />
       </button>
       <div className="brand">
@@ -21,30 +23,30 @@ export function TopBar() {
         </svg>
         <div>
           <strong>Grid Sandbox</strong>
-          <span className="muted small hide-sm">prancheta de grids e diagramação</span>
+          <span className="muted small hide-sm">{t('prancheta de grids e diagramação', 'a drawing board for grids and layout')}</span>
         </div>
       </div>
       <div className="top-controls">
-        <select className="select compact" value={s.formatId} onChange={(e) => s.setFormat(e.target.value)} aria-label="Formato">
+        <select className="select compact" value={s.formatId} onChange={(e) => s.setFormat(e.target.value)} aria-label={t('Formato', 'Format')}>
           {FORMATS.map((f) => (
             <option key={f.id} value={f.id}>
               {f.name}
             </option>
           ))}
-          <option value="custom">Personalizado</option>
+          <option value="custom">{t('Personalizado', 'Custom')}</option>
         </select>
-        <button className="chip" onClick={s.toggleOrientation} title="Orientação (O)">
-          {s.orientation === 'portrait' ? 'Retrato' : 'Paisagem'}
+        <button className="chip" onClick={s.toggleOrientation} title={t('Orientação (O)', 'Orientation (O)')}>
+          {s.orientation === 'portrait' ? t('Retrato', 'Portrait') : t('Paisagem', 'Landscape')}
         </button>
-        <select className="select compact hide-sm" value={s.schoolId} onChange={(e) => s.setSchool(e.target.value, true)} aria-label="Escola">
-          <optgroup label="Escolas e movimentos">
+        <select className="select compact hide-sm" value={s.schoolId} onChange={(e) => s.setSchool(e.target.value, true)} aria-label={t('Escola', 'School')}>
+          <optgroup label={t('Escolas e movimentos', 'Schools and movements')}>
             {SCHOOLS.filter((sc) => !sc.book).map((sc) => (
               <option key={sc.id} value={sc.id}>
                 {sc.name}
               </option>
             ))}
           </optgroup>
-          <optgroup label="Livro: diagramação de texto">
+          <optgroup label={t('Livro: diagramação de texto', 'Book: text layout')}>
             {SCHOOLS.filter((sc) => sc.book).map((sc) => (
               <option key={sc.id} value={sc.id}>
                 {sc.name}
@@ -52,8 +54,8 @@ export function TopBar() {
             ))}
           </optgroup>
         </select>
-        <div className="segmented hide-xs" role="radiogroup" aria-label="Modo">
-          <button className={s.mode === 'auto' ? 'on' : ''} onClick={() => s.set({ mode: 'auto' })} title="Automático">
+        <div className="segmented hide-xs" role="radiogroup" aria-label={t('Modo', 'Mode')}>
+          <button className={s.mode === 'auto' ? 'on' : ''} onClick={() => s.set({ mode: 'auto' })} title={t('Automático', 'Automatic')}>
             <Icon name="wand" size={16} /> <span className="hide-sm">Auto</span>
           </button>
           <button className={s.mode === 'manual' ? 'on' : ''} onClick={() => s.set({ mode: 'manual' })} title="Manual (M)">
@@ -62,22 +64,30 @@ export function TopBar() {
         </div>
       </div>
       <div className="top-actions">
-        <button className="icon-btn hide-xs" onClick={s.undo} disabled={!s.past.length} title="Desfazer (Ctrl+Z)">
+        <div className="segmented lang-switch" role="radiogroup" aria-label={t('Idioma', 'Language')}>
+          <button role="radio" aria-checked={s.uiLang === 'pt'} className={s.uiLang === 'pt' ? 'on' : ''} onClick={() => s.setUiLang('pt')} title="Português" lang="pt-BR">
+            PT
+          </button>
+          <button role="radio" aria-checked={s.uiLang === 'en'} className={s.uiLang === 'en' ? 'on' : ''} onClick={() => s.setUiLang('en')} title="English" lang="en">
+            EN
+          </button>
+        </div>
+        <button className="icon-btn hide-xs" onClick={s.undo} disabled={!s.past.length} title={t('Desfazer (Ctrl+Z)', 'Undo (Ctrl+Z)')}>
           <Icon name="undo" />
         </button>
-        <button className="icon-btn hide-xs" onClick={() => s.set({ paletteOpen: true })} title="Comandos (Ctrl+K)">
+        <button className="icon-btn hide-xs" onClick={() => s.set({ paletteOpen: true })} title={t('Comandos (Ctrl+K)', 'Commands (Ctrl+K)')}>
           <Icon name="search" />
         </button>
-        <button className="icon-btn hide-xs" onClick={() => s.set({ helpOpen: true })} title="Ajuda (?)">
+        <button className="icon-btn hide-xs" onClick={() => s.set({ helpOpen: true })} title={t('Ajuda (?)', 'Help (?)')}>
           <Icon name="help" />
         </button>
-        <button className="icon-btn hide-xs" onClick={() => s.set({ aboutOpen: true })} title="Sobre e créditos">
+        <button className="icon-btn hide-xs" onClick={() => s.set({ aboutOpen: true })} title={t('Sobre e créditos', 'About and credits')}>
           <Icon name="info" />
         </button>
-        <button className="btn primary" onClick={() => s.set({ exportOpen: true })} title="Exportar (E)">
-          <Icon name="export" size={16} /> <span className="hide-sm">Exportar</span>
+        <button className="btn primary" onClick={() => s.set({ exportOpen: true })} title={t('Exportar (E)', 'Export (E)')}>
+          <Icon name="export" size={16} /> <span className="hide-sm">{t('Exportar', 'Export')}</span>
         </button>
-        <button className="icon-btn only-narrow" onClick={() => s.set({ sheet: s.sheet === 'right' ? null : 'right' })} aria-label="Teoria e escola">
+        <button className="icon-btn only-narrow" onClick={() => s.set({ sheet: s.sheet === 'right' ? null : 'right' })} aria-label={t('Teoria e escola', 'Theory and school')}>
           <Icon name="book" />
         </button>
       </div>

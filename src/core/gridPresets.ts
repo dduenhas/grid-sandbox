@@ -1,5 +1,6 @@
 import type { PageSize } from './formats';
 import type { GridSpec, GridTypeId, Margins } from './gridEngine';
+import { bilingualList } from '../i18n';
 
 export type GridFamily = 'manuscrito' | 'colunas' | 'modular' | 'proporcional' | 'tela' | 'experimental';
 
@@ -97,7 +98,7 @@ const colType = (n: number, name: string, suit: GridType['suit']): GridType => (
   suit,
 });
 
-export const GRID_TYPES: GridType[] = [
+const GRID_TYPES_PT: GridType[] = [
   {
     id: 'manuscript',
     name: 'Manuscrito (cânone Van de Graaf)',
@@ -307,6 +308,30 @@ export const GRID_TYPES: GridType[] = [
     suit: (p) => (p.medium === 'screen' ? 0.9 : 0.35),
   },
 ];
+
+export const GRID_TYPES: GridType[] = bilingualList(GRID_TYPES_PT, {
+  manuscript: { name: 'Manuscript (Van de Graaf canon)', short: 'Manuscript' },
+  'book-trade': { name: 'Trade book (economical 2:3:4:6)', short: 'Book' },
+  'book-morris': { name: 'Morris margins (+20% per margin)', short: 'Morris' },
+  'book-2col': { name: 'Two-column reference book', short: 'Ref. 2 col' },
+  'manuscript-notes': { name: 'Manuscript with notes column', short: 'Notes' },
+  'col-2': { name: '2 columns' },
+  'col-3': { name: '3 columns' },
+  'col-4': { name: '4 columns' },
+  'col-5': { name: '5 columns (asymmetric)' },
+  'col-6': { name: '6 columns' },
+  'col-12': { name: '12 columns (screen system)' },
+  'mod-3x3': { name: 'Modular 3 × 3' },
+  'mod-4x6': { name: 'Modular 4 × 6 (24 fields)' },
+  'mod-6x8': { name: 'Modular 6 × 8 (Müller-Brockmann)' },
+  hierarchical: { name: 'Hierarchical', short: 'Hierarch.' },
+  golden: { name: 'Golden section', short: 'Golden' },
+  thirds: { name: 'Rule of thirds', short: 'Thirds' },
+  fibonacci: { name: 'Fibonacci (1, 1, 2, 3, 5)' },
+  gerstner: { name: 'Gerstner 58 units (1 to 6 columns)' },
+  diagonal: { name: 'Constructivist diagonal' },
+  eightpt: { name: '8pt grid + 4pt baseline' },
+});
 
 export const gridType = (id: GridTypeId) => GRID_TYPES.find((t) => t.id === id) ?? GRID_TYPES[0];
 

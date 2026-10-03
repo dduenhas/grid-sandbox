@@ -1,3 +1,5 @@
+import { bilingualList } from '../i18n';
+
 export interface ScaleRatio {
   id: string;
   name: string;
@@ -5,7 +7,7 @@ export interface ScaleRatio {
   note: string;
 }
 
-export const SCALE_RATIOS: ScaleRatio[] = [
+const SCALE_RATIOS_PT: ScaleRatio[] = [
   { id: 'minor-second', name: 'Segunda menor', ratio: 16 / 15, note: 'Contraste mínimo, interfaces densas' },
   { id: 'major-second', name: 'Segunda maior', ratio: 9 / 8, note: 'Texto longo, documentação' },
   { id: 'minor-third', name: 'Terça menor', ratio: 6 / 5, note: 'Equilíbrio para sites e apps' },
@@ -15,6 +17,17 @@ export const SCALE_RATIOS: ScaleRatio[] = [
   { id: 'golden', name: 'Seção áurea', ratio: 1.618034, note: 'Contraste dramático, cartaz suíço' },
   { id: 'octave', name: 'Oitava', ratio: 2, note: 'Contraste máximo' },
 ];
+
+export const SCALE_RATIOS: ScaleRatio[] = bilingualList(SCALE_RATIOS_PT, {
+  'minor-second': { name: 'Minor second', note: 'Minimal contrast, dense interfaces' },
+  'major-second': { name: 'Major second', note: 'Long text, documentation' },
+  'minor-third': { name: 'Minor third', note: 'Balanced for websites and apps' },
+  'major-third': { name: 'Major third', note: 'Versatile editorial' },
+  'perfect-fourth': { name: 'Perfect fourth', note: 'Clear hierarchy, books and magazines' },
+  'perfect-fifth': { name: 'Perfect fifth', note: 'Posters and covers' },
+  golden: { name: 'Golden section', note: 'Dramatic contrast, Swiss poster' },
+  octave: { name: 'Octave', note: 'Maximum contrast' },
+});
 
 export const getRatio = (id: string) => SCALE_RATIOS.find((r) => r.id === id) ?? SCALE_RATIOS[4];
 

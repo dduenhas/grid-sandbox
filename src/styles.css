@@ -387,6 +387,14 @@ textarea.input {
   background: var(--ink);
   color: #fff;
 }
+.lang-switch {
+  margin-right: 4px;
+}
+.lang-switch button {
+  padding: 5px 7px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
 .slider {
   display: grid;
   grid-template-columns: 1fr 76px;

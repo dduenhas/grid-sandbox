@@ -1,25 +1,27 @@
 import { useStore, type RightTab } from '../store/useStore';
+import { useT } from '../hooks/useT';
 import { TheoryPanel } from './TheoryPanel';
 import { SchoolPanel } from './SchoolPanel';
 import { LayoutPanel } from './LayoutPanel';
 import { NumbersPanel } from './NumbersPanel';
 
-const TABS: { id: RightTab; label: string }[] = [
-  { id: 'theory', label: 'Teoria' },
-  { id: 'school', label: 'Escola' },
-  { id: 'layout', label: 'Diagramação' },
-  { id: 'numbers', label: 'Números' },
+const TABS: { id: RightTab; label: [string, string] }[] = [
+  { id: 'theory', label: ['Teoria', 'Theory'] },
+  { id: 'school', label: ['Escola', 'School'] },
+  { id: 'layout', label: ['Diagramação', 'Layout'] },
+  { id: 'numbers', label: ['Números', 'Numbers'] },
 ];
 
 export function RightPanel() {
   const tab = useStore((s) => s.rightTab);
   const set = useStore((s) => s.set);
+  const t = useT();
   return (
     <div className="right-wrap">
       <nav className="tabs" role="tablist">
-        {TABS.map((t) => (
-          <button key={t.id} role="tab" aria-selected={tab === t.id} className={tab === t.id ? 'on' : ''} onClick={() => set({ rightTab: t.id })}>
-            {t.label}
+        {TABS.map((x) => (
+          <button key={x.id} role="tab" aria-selected={tab === x.id} className={tab === x.id ? 'on' : ''} onClick={() => set({ rightTab: x.id })}>
+            {t(...x.label)}
           </button>
         ))}
       </nav>

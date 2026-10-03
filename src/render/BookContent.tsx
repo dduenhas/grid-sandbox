@@ -7,6 +7,7 @@ import { fontStack, type School } from '../content/schools';
 import { caseText, flowBook, wrapRuns, type Face, type FlowFaces, type Run } from './bookText';
 import { measure } from './text';
 import type { RenderCtx } from './BlockContent';
+import { tx } from '../i18n';
 
 const CAP = 0.72;
 
@@ -148,7 +149,7 @@ export function BookBlock({ block: b, w, h, ctx }: { block: Block; w: number; h:
       const h0 = st.heads[0];
       const hFace = faceFor(faces, h0.role, h0.italic, h0.weight);
       let y = baselineAt(ctx.grid, 0, size * h0.scale);
-      const head = setLines('Sumário', hFace, size * h0.scale, h0.case, h0.tracking, w, y, lead, st.chapter.align, h0.accent ? 'accent' : 'ink');
+      const head = setLines(tx('Sumário', 'Contents'), hFace, size * h0.scale, h0.case, h0.tracking, w, y, lead, st.chapter.align, h0.accent ? 'accent' : 'ink');
       runs.push(...head.runs);
       y = head.y + lead * 2;
       const entries = b.text.split('\n').filter(Boolean);
@@ -280,7 +281,7 @@ export function BookFurniture({ grid, school, furniture, bodySize }: { grid: Gri
     }
   });
   return (
-    <g id="Cabecos-e-folios">
+    <g id={tx('Cabecos-e-folios', 'Running-heads-and-folios')}>
       {runs.map((r, i) => (
         <RunText key={i} k={i} r={r} s={school} />
       ))}

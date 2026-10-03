@@ -1,12 +1,14 @@
 import type { BookStyle, FontRole } from './book';
 import { paraFont, type FontSpec, type School } from './schools';
+import { getLang, tx } from '../i18n';
 
 const cache = new Map<string, BookStyle>();
 
 /** The school's book recipe, or a neutral one derived from its fonts and alignment. */
 export function bookOf(s: School): BookStyle {
   if (s.book) return s.book;
-  const hit = cache.get(s.id);
+  const key = `${s.id}:${getLang()}`;
+  const hit = cache.get(key);
   if (hit) return hit;
   const align = s.align === 'center' ? 'center' : 'left';
   const upper = s.headlineCase === 'upper';
@@ -44,17 +46,27 @@ export function bookOf(s: School): BookStyle {
     breakMark: '* * *',
     notes: 'foot',
     epigraph: { align: align === 'center' ? 'center' : 'left', prob: 0.4 },
-    recipe: {
-      fonts: `${s.display.family === s.text.family ? '1 família' : '2 famílias'}: ${s.display.family} nos títulos e ${s.text.family} no texto, herdadas da escola.`,
-      margins: 'As margens do grid escolhido. Para livros, prefira os grids da família manuscrito.',
-      leading: 'Entrelinha do formato, com corpo de cerca de 72% dela.',
-      paragraph: 'Recuo de 1 eme.',
-      opening: 'Rebaixo de 30%, número e título na fonte de display da escola.',
-      hierarchy: 'Uma adaptação neutra da escola ao livro. As escolas do grupo Livro trazem receitas completas.',
-    },
+    recipe: tx(
+      {
+        fonts: `${s.display.family === s.text.family ? '1 família' : '2 famílias'}: ${s.display.family} nos títulos e ${s.text.family} no texto, herdadas da escola.`,
+        margins: 'As margens do grid escolhido. Para livros, prefira os grids da família manuscrito.',
+        leading: 'Entrelinha do formato, com corpo de cerca de 72% dela.',
+        paragraph: 'Recuo de 1 eme.',
+        opening: 'Rebaixo de 30%, número e título na fonte de display da escola.',
+        hierarchy: 'Uma adaptação neutra da escola ao livro. As escolas do grupo Livro trazem receitas completas.',
+      },
+      {
+        fonts: `${s.display.family === s.text.family ? '1 family' : '2 families'}: ${s.display.family} for headings and ${s.text.family} for text, inherited from the school.`,
+        margins: 'The margins of the chosen grid. For books, prefer the grids of the manuscript family.',
+        leading: 'The format’s leading, with a type size of about 72% of it.',
+        paragraph: '1 em indent.',
+        opening: '30% sink, number and title in the school’s display face.',
+        hierarchy: 'A neutral adaptation of the school to the book. The schools in the Book group carry complete recipes.',
+      },
+    ),
     masterpieces: [],
   };
-  cache.set(s.id, style);
+  cache.set(key, style);
   return style;
 }
 

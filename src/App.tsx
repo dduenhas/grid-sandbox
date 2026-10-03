@@ -1,3 +1,4 @@
+import { useT } from './hooks/useT';
 import { useEffect } from 'react';
 import { useStore } from './store/useStore';
 import { TopBar } from './components/TopBar';
@@ -17,6 +18,7 @@ export default function App() {
   const aboutOpen = useStore((s) => s.aboutOpen);
   const mode = useStore((s) => s.mode);
   const set = useStore((s) => s.set);
+  const t = useT();
   useShortcuts();
   useAutoplay();
   useFonts();
@@ -29,12 +31,12 @@ export default function App() {
   return (
     <div className={`app ${sheet ? `sheet-${sheet}` : ''}`}>
       <TopBar />
-      <aside className="panel left" aria-label="Formato e grids">
+      <aside className="panel left" aria-label={t('Formato e grids', 'Format and grids')}>
         <div className="sheet-grip only-narrow" onClick={() => set({ sheet: null })} />
         <LeftPanel />
       </aside>
       <Desk />
-      <aside className="panel right" aria-label="Teoria, escola e diagramação">
+      <aside className="panel right" aria-label={t('Teoria, escola e diagramação', 'Theory, school and layout')}>
         <div className="sheet-grip only-narrow" onClick={() => set({ sheet: null })} />
         <RightPanel />
       </aside>

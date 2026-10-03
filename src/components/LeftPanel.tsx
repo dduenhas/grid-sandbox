@@ -6,6 +6,7 @@ import { useDerived, useStore } from '../store/useStore';
 import { Section, Segmented, Slider, Toggle } from './ui';
 import { docToPt, ptToDoc } from '../core/units';
 import { BINDINGS, bindingOf, type BindingId } from '../content/book';
+import { tx } from '../i18n';
 
 export function LeftPanel() {
   return (
@@ -21,29 +22,29 @@ function FormatPicker() {
   const s = useStore();
   const d = useDerived();
   return (
-    <Section title="Formato">
-      <select className="select" value={s.formatId} onChange={(e) => s.setFormat(e.target.value)} aria-label="Formato">
-        <optgroup label="Impresso">
+    <Section title={tx('Formato', 'Format')}>
+      <select className="select" value={s.formatId} onChange={(e) => s.setFormat(e.target.value)} aria-label={tx('Formato', 'Format')}>
+        <optgroup label={tx('Impresso', 'Print')}>
           {FORMATS.filter((f) => f.medium === 'print').map((f) => (
             <option key={f.id} value={f.id}>
               {f.name}
             </option>
           ))}
         </optgroup>
-        <optgroup label="Tela">
+        <optgroup label={tx('Tela', 'Screen')}>
           {FORMATS.filter((f) => f.medium === 'screen').map((f) => (
             <option key={f.id} value={f.id}>
               {f.name}
             </option>
           ))}
         </optgroup>
-        <option value="custom">Personalizado…</option>
+        <option value="custom">{tx('Personalizado…', 'Custom…')}</option>
       </select>
       {s.formatId === 'custom' && (
         <div className="row3">
-          <input className="input" type="number" min={10} value={s.custom.w} onChange={(e) => s.set({ custom: { ...s.custom, w: Math.max(10, Number(e.target.value)) }, gridOverrides: {} })} aria-label="Largura" />
-          <input className="input" type="number" min={10} value={s.custom.h} onChange={(e) => s.set({ custom: { ...s.custom, h: Math.max(10, Number(e.target.value)) }, gridOverrides: {} })} aria-label="Altura" />
-          <select className="select" value={s.custom.unit} onChange={(e) => s.set({ custom: { ...s.custom, unit: e.target.value as 'mm' | 'px' }, gridOverrides: {} })} aria-label="Unidade">
+          <input className="input" type="number" min={10} value={s.custom.w} onChange={(e) => s.set({ custom: { ...s.custom, w: Math.max(10, Number(e.target.value)) }, gridOverrides: {} })} aria-label={tx('Largura', 'Width')} />
+          <input className="input" type="number" min={10} value={s.custom.h} onChange={(e) => s.set({ custom: { ...s.custom, h: Math.max(10, Number(e.target.value)) }, gridOverrides: {} })} aria-label={tx('Altura', 'Height')} />
+          <select className="select" value={s.custom.unit} onChange={(e) => s.set({ custom: { ...s.custom, unit: e.target.value as 'mm' | 'px' }, gridOverrides: {} })} aria-label={tx('Unidade', 'Unit')}>
             <option value="mm">mm</option>
             <option value="px">px</option>
           </select>
@@ -51,25 +52,25 @@ function FormatPicker() {
       )}
       <div className="row2">
         <Segmented
-          label="Orientação"
+          label={tx('Orientação', 'Orientation')}
           value={s.orientation}
           options={[
-            { id: 'portrait', label: 'Retrato' },
-            { id: 'landscape', label: 'Paisagem' },
+            { id: 'portrait', label: tx('Retrato', 'Portrait') },
+            { id: 'landscape', label: tx('Paisagem', 'Landscape') },
           ]}
           onChange={(o) => o !== s.orientation && s.toggleOrientation()}
         />
-        <Toggle label="Página dupla" checked={s.spread} onChange={(v) => s.set({ spread: v, selectedId: null })} />
+        <Toggle label={tx('Página dupla', 'Double page')} checked={s.spread} onChange={(v) => s.set({ spread: v, selectedId: null })} />
       </div>
       {d.page.medium === 'print' && (
         <>
           <label className="field-label">
-            Encadernação
-            <select className="select" value={s.binding} onChange={(e) => s.set({ binding: e.target.value as BindingId, selectedId: null })} aria-label="Encadernação">
+            {tx('Encadernação', 'Binding')}
+            <select className="select" value={s.binding} onChange={(e) => s.set({ binding: e.target.value as BindingId, selectedId: null })} aria-label={tx('Encadernação', 'Binding')}>
               {BINDINGS.map((b) => (
                 <option key={b.id} value={b.id}>
                   {b.name}
-                  {b.mm ? ` (+${b.mm} mm na interna)` : ''}
+                  {b.mm ? tx(` (+${b.mm} mm na interna)`, ` (+${b.mm} mm on the inner margin)`) : ''}
                 </option>
               ))}
             </select>
@@ -107,7 +108,7 @@ function GridPicker() {
   const s = useStore();
   const d = useDerived();
   return (
-    <Section title={`Grids (${d.presets.length})`} aside={<span className="hint">ordenados por adequação</span>}>
+    <Section title={`Grids (${d.presets.length})`} aside={<span className="hint">{tx('ordenados por adequação', 'sorted by fit')}</span>}>
       <div className="thumbs">
         {d.presets.map((p, i) => (
           <button key={p.id} className={`thumb ${p.id === d.preset.id ? 'on' : ''}`} onClick={() => s.setGrid(p.id)} title={`${p.type.name}${i < 9 ? ` (${i + 1})` : ''}`}>
@@ -137,28 +138,35 @@ function GridParams() {
   const sfx = mm ? 'mm' : 'px';
   return (
     <Section
-      title="Parâmetros do grid"
+      title={tx('Parâmetros do grid', 'Grid parameters')}
       aside={
         Object.keys(s.gridOverrides).length > 0 ? (
           <button className="link" onClick={s.resetOverrides}>
-            restaurar
+            {tx('restaurar', 'reset')}
           </button>
         ) : undefined
       }
     >
-      <Slider label="Colunas" value={sp.cols} min={1} max={16} step={1} digits={0} onChange={(v) => set({ cols: v, colRatios: v === d.preset.spec.cols ? d.preset.spec.colRatios : undefined })} />
-      <Slider label="Linhas (campos)" value={sp.rows} min={1} max={16} step={1} digits={0} onChange={(v) => set({ rows: v, rowRatios: v === d.preset.spec.rows ? d.preset.spec.rowRatios : undefined })} />
-      <Slider label="Calha horizontal" value={sp.gutterX} min={0} max={mm ? 20 : 80} step={stepL / 2} suffix={sfx} onChange={(v) => set({ gutterX: v })} />
-      <Slider label="Calha vertical" value={sp.gutterY} min={0} max={mm ? 20 : 80} step={stepL / 2} suffix={sfx} onChange={(v) => set({ gutterY: v })} />
-      <Slider label={mm ? 'Entrelinha (pt)' : 'Linha de base (px)'} value={docToPt(sp.baseline, u)} min={mm ? 5 : 2} max={mm ? 48 : 64} step={mm ? 0.5 : 1} suffix="pt" onChange={(v) => set({ baseline: ptToDoc(v, u) })} />
-      <Toggle label="Travar campos na entrelinha (Müller-Brockmann)" checked={sp.baselineLock} onChange={(v) => set({ baselineLock: v })} />
-      <div className="subhead-sm">Margens</div>
-      <Slider label="Superior" value={m.top} min={0} max={maxM} step={stepL} suffix={sfx} onChange={(v) => set({ margins: { ...m, top: v } })} />
-      <Slider label="Inferior" value={m.bottom} min={0} max={maxM} step={stepL} suffix={sfx} onChange={(v) => set({ margins: { ...m, bottom: v } })} />
-      <Slider label={s.spread ? 'Interna (lombada)' : 'Esquerda (interna)'} value={m.inner} min={0} max={maxM} step={stepL} suffix={sfx} onChange={(v) => set({ margins: { ...m, inner: v } })} />
-      <Slider label={s.spread ? 'Externa (corte)' : 'Direita (externa)'} value={m.outer} min={0} max={maxM} step={stepL} suffix={sfx} onChange={(v) => set({ margins: { ...m, outer: v } })} />
-      {sp.baselineLock && Math.abs(d.grid.margins.bottom - m.bottom) > 0.05 && <p className="hint">Margem inferior efetiva: {Math.round(d.grid.margins.bottom * 10) / 10} {sfx} (ajustada para fechar os campos na entrelinha).</p>}
-      <Slider label="Rotação do grid" value={sp.rotation} min={-45} max={45} step={1} digits={0} suffix="°" onChange={(v) => set({ rotation: v })} />
+      <Slider label={tx('Colunas', 'Columns')} value={sp.cols} min={1} max={16} step={1} digits={0} onChange={(v) => set({ cols: v, colRatios: v === d.preset.spec.cols ? d.preset.spec.colRatios : undefined })} />
+      <Slider label={tx('Linhas (campos)', 'Rows (fields)')} value={sp.rows} min={1} max={16} step={1} digits={0} onChange={(v) => set({ rows: v, rowRatios: v === d.preset.spec.rows ? d.preset.spec.rowRatios : undefined })} />
+      <Slider label={tx('Calha horizontal', 'Column gutter')} value={sp.gutterX} min={0} max={mm ? 20 : 80} step={stepL / 2} suffix={sfx} onChange={(v) => set({ gutterX: v })} />
+      <Slider label={tx('Calha vertical', 'Row gutter')} value={sp.gutterY} min={0} max={mm ? 20 : 80} step={stepL / 2} suffix={sfx} onChange={(v) => set({ gutterY: v })} />
+      <Slider label={mm ? tx('Entrelinha (pt)', 'Leading (pt)') : tx('Linha de base (px)', 'Baseline (px)')} value={docToPt(sp.baseline, u)} min={mm ? 5 : 2} max={mm ? 48 : 64} step={mm ? 0.5 : 1} suffix="pt" onChange={(v) => set({ baseline: ptToDoc(v, u) })} />
+      <Toggle label={tx('Travar campos na entrelinha (Müller-Brockmann)', 'Lock fields to the leading (Müller-Brockmann)')} checked={sp.baselineLock} onChange={(v) => set({ baselineLock: v })} />
+      <div className="subhead-sm">{tx('Margens', 'Margins')}</div>
+      <Slider label={tx('Superior', 'Top')} value={m.top} min={0} max={maxM} step={stepL} suffix={sfx} onChange={(v) => set({ margins: { ...m, top: v } })} />
+      <Slider label={tx('Inferior', 'Bottom')} value={m.bottom} min={0} max={maxM} step={stepL} suffix={sfx} onChange={(v) => set({ margins: { ...m, bottom: v } })} />
+      <Slider label={s.spread ? tx('Interna (lombada)', 'Inside (spine)') : tx('Esquerda (interna)', 'Left (inner)')} value={m.inner} min={0} max={maxM} step={stepL} suffix={sfx} onChange={(v) => set({ margins: { ...m, inner: v } })} />
+      <Slider label={s.spread ? tx('Externa (corte)', 'Outside (fore-edge)') : tx('Direita (externa)', 'Right (outer)')} value={m.outer} min={0} max={maxM} step={stepL} suffix={sfx} onChange={(v) => set({ margins: { ...m, outer: v } })} />
+      {sp.baselineLock && Math.abs(d.grid.margins.bottom - m.bottom) > 0.05 && (
+        <p className="hint">
+          {tx(
+            `Margem inferior efetiva: ${Math.round(d.grid.margins.bottom * 10) / 10} ${sfx} (ajustada para fechar os campos na entrelinha).`,
+            `Effective bottom margin: ${Math.round(d.grid.margins.bottom * 10) / 10} ${sfx} (adjusted so the fields close on the leading).`,
+          )}
+        </p>
+      )}
+      <Slider label={tx('Rotação do grid', 'Grid rotation')} value={sp.rotation} min={-45} max={45} step={1} digits={0} suffix="°" onChange={(v) => set({ rotation: v })} />
     </Section>
   );
 }

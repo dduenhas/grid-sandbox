@@ -5,6 +5,7 @@ import { measureChars } from './typeScale';
 import type { School } from '../content/schools';
 import { bookOf, familiesOf } from '../content/bookOf';
 import { mmToPt } from './units';
+import { tx } from '../i18n';
 
 /** Body size from leading. Book styles carry their own leading ratio. */
 export const bodySizeFor = (baseline: number, school: School) => baseline / (school.book?.leadRatio ?? 1.38);
@@ -48,39 +49,55 @@ export function scoreBook(blocks: Block[], grid: Grid, school: School, bindingMm
   const parts: ScorePart[] = [
     {
       id: 'margins',
-      label: 'Margens progressivas',
+      label: tx('Margens progressivas', 'Progressive margins'),
       value: marginScore,
-      note: `Visíveis: interna ${r1(inner)}, superior ${r1(m.top)}, externa ${r1(m.outer)}, inferior ${r1(m.bottom)}${isMm ? ' mm' : ''}${binding ? ` (+${binding} mm de encadernação na interna)` : ''}. ${ordered === 3 ? 'A sequência interna < superior < externa < inferior mantém a mancha unida no centro da dupla.' : 'Quebra a progressão clássica: a dupla perde a unidade.'} Externa/interna = ${r1(outerRatio)} (as duas internas somadas ≈ uma externa).`,
+      note: tx(
+        `Visíveis: interna ${r1(inner)}, superior ${r1(m.top)}, externa ${r1(m.outer)}, inferior ${r1(m.bottom)}${isMm ? ' mm' : ''}${binding ? ` (+${binding} mm de encadernação na interna)` : ''}. ${ordered === 3 ? 'A sequência interna < superior < externa < inferior mantém a mancha unida no centro da dupla.' : 'Quebra a progressão clássica: a dupla perde a unidade.'} Externa/interna = ${r1(outerRatio)} (as duas internas somadas ≈ uma externa).`,
+        `Visible: inner ${r1(inner)}, top ${r1(m.top)}, outer ${r1(m.outer)}, bottom ${r1(m.bottom)}${isMm ? ' mm' : ''}${binding ? ` (+${binding} mm binding allowance on the inner margin)` : ''}. ${ordered === 3 ? 'The sequence inner < top < outer < bottom keeps the text blocks together at the center of the spread.' : 'It breaks the classical progression: the spread loses its unity.'} Outer/inner = ${r1(outerRatio)} (the two inner margins together ≈ one outer margin).`,
+      ),
     },
     {
       id: 'share',
-      label: 'Mancha',
+      label: tx('Mancha', 'Text block'),
       value: shareScore,
-      note: `A mancha ocupa ${Math.round(share * 100)}% da página. Cânones clássicos ficam entre 44% (Van de Graaf) e 55%; o livro comercial vai até ~70%.`,
+      note: tx(
+        `A mancha ocupa ${Math.round(share * 100)}% da página. Cânones clássicos ficam entre 44% (Van de Graaf) e 55%; o livro comercial vai até ~70%.`,
+        `The text block fills ${Math.round(share * 100)}% of the page. Classical canons sit between 44% (Van de Graaf) and 55%; trade books go up to ~70%.`,
+      ),
     },
     {
       id: 'measure',
-      label: 'Medida',
+      label: tx('Medida', 'Measure'),
       value: measScore,
-      note: measures.length ? `${measures.join(', ')} caracteres por linha. Em livro o ideal é 60–70; 45–75 é aceitável (Bringhurst 2.1.2).` : 'Página sem texto corrido.',
+      note: measures.length
+        ? tx(`${measures.join(', ')} caracteres por linha. Em livro o ideal é 60–70; 45–75 é aceitável (Bringhurst 2.1.2).`, `${measures.join(', ')} characters per line. In a book the ideal is 60–70; 45–75 is acceptable (Bringhurst 2.1.2).`)
+        : tx('Página sem texto corrido.', 'Page without body text.'),
     },
     {
       id: 'leading',
-      label: 'Entrelinha',
+      label: tx('Entrelinha', 'Leading'),
       value: leadScore,
-      note: `Corpo ${pt(size)} pt sobre ${pt(grid.baseline)} pt (${Math.round(ratio * 100)}%). Texto longo pede 120–145%; mais aberta para medidas longas e faces de altura-x grande.${ratio < 1.2 ? ' Abaixo disso a página fica escura e densa, como nas private presses: ganha cor tipográfica, perde conforto em leituras longas.' : ''}`,
+      note: tx(
+        `Corpo ${pt(size)} pt sobre ${pt(grid.baseline)} pt (${Math.round(ratio * 100)}%). Texto longo pede 120–145%; mais aberta para medidas longas e faces de altura-x grande.${ratio < 1.2 ? ' Abaixo disso a página fica escura e densa, como nas private presses: ganha cor tipográfica, perde conforto em leituras longas.' : ''}`,
+        `${pt(size)} pt type on ${pt(grid.baseline)} pt leading (${Math.round(ratio * 100)}%). Long text calls for 120–145%; looser for long measures and large x-height faces.${ratio < 1.2 ? ' Below that the page turns dark and dense, as in the private presses: it gains typographic color but loses comfort in long reading.' : ''}`,
+      ),
     },
     {
       id: 'hierarchy',
-      label: 'Hierarquia',
+      label: tx('Hierarquia', 'Hierarchy'),
       value: hierScore,
-      note: `${fams} ${fams === 1 ? 'família' : 'famílias'}, ${style.heads.length} níveis de intertítulo${used.size ? ` (${used.size} em uso)` : ''}. Cada nível muda uma variável (caixa, itálico, peso ou posição) e tem mais espaço antes do que depois.`,
+      note: tx(
+        `${fams} ${fams === 1 ? 'família' : 'famílias'}, ${style.heads.length} níveis de intertítulo${used.size ? ` (${used.size} em uso)` : ''}. Cada nível muda uma variável (caixa, itálico, peso ou posição) e tem mais espaço antes do que depois.`,
+        `${fams} ${fams === 1 ? 'family' : 'families'}, ${style.heads.length} heading levels${used.size ? ` (${used.size} in use)` : ''}. Each level changes one variable (case, italic, weight or position) and has more space before than after.`,
+      ),
     },
     {
       id: 'register',
-      label: 'Registro',
+      label: tx('Registro', 'Register'),
       value: regScore,
-      note: grid.spec.baselineLock ? 'Linhas em registro: frente e verso coincidem e o espaço vertical é medido em linhas inteiras.' : 'Sem registro: as linhas do verso aparecem entre as da frente no papel fino.',
+      note: grid.spec.baselineLock
+        ? tx('Linhas em registro: frente e verso coincidem e o espaço vertical é medido em linhas inteiras.', 'Lines in register: front and back coincide and vertical space is measured in whole lines.')
+        : tx('Sem registro: as linhas do verso aparecem entre as da frente no papel fino.', 'Out of register: on thin paper the lines on the back show between those on the front.'),
     },
   ];
   const total = Math.round((marginScore * 0.22 + shareScore * 0.13 + measScore * 0.22 + leadScore * 0.15 + hierScore * 0.14 + regScore * 0.14) * 100);

@@ -4,6 +4,7 @@ import { bodySizeFor } from '../core/bookScore';
 import { roleFont } from '../content/bookOf';
 import type { CaseStyle, FontRole, HeadStyle } from '../content/book';
 import { docToPt, round } from '../core/units';
+import { getLang, tx } from '../i18n';
 
 const fr = (ratios: number[] | undefined, n: number) => (ratios && ratios.length === n ? ratios.map((r) => `${round(r, 3)}fr`).join(' ') : `repeat(${n}, 1fr)`);
 
@@ -78,10 +79,27 @@ function bookSpecs(d: Derived): string {
   const P = (v: number) => `${round(docToPt(v, u), 1)} pt`;
   const lead = P(d.grid.baseline);
   const fam = (role: FontRole) => roleFont(d.school, role).family;
-  const cs = (c: CaseStyle) => (c === 'upper' ? ', maiúsculas' : c === 'smallcaps' ? ', versaletes' : '');
+  const ital = tx(' itálico', ' italic');
+  const cs = (c: CaseStyle) => (c === 'upper' ? tx(', maiúsculas', ', capitals') : c === 'smallcaps' ? tx(', versaletes', ', small caps') : '');
   const head = (name: string, h: HeadStyle) =>
-    `  ${name}: ${fam(h.role)}${h.italic ? ' itálico' : ''}${h.weight ? ` ${h.weight}` : ''} ${P(body * h.scale)}${cs(h.case)}${h.tracking ? `, tracking ${Math.round(h.tracking * 1000)}` : ''}, ${h.align === 'center' ? 'centralizado' : 'à esquerda'}${h.runIn ? ', corrido no parágrafo' : `, ${h.before} linha(s) antes e ${h.after} depois`}`;
+    `  ${name}: ${fam(h.role)}${h.italic ? ital : ''}${h.weight ? ` ${h.weight}` : ''} ${P(body * h.scale)}${cs(h.case)}${h.tracking ? `, tracking ${Math.round(h.tracking * 1000)}` : ''}, ${h.align === 'center' ? tx('centralizado', 'centered') : tx('à esquerda', 'flush left')}${h.runIn ? tx(', corrido no parágrafo', ', run in') : tx(`, ${h.before} linha(s) antes e ${h.after} depois`, `, ${h.before} line(s) before and ${h.after} after`)}`;
   const ch = st.chapter;
+  if (getLang() === 'en') {
+    return `
+PARAGRAPH STYLES (book)
+  Body: ${fam('text')} ${P(body)} / ${lead}, ${st.justify ? 'justified' : 'flush left'}, ${st.paragraph === 'indent' ? '1 em indent' : st.paragraph === 'space' ? '1 line of space between paragraphs' : 'run-on paragraphs with ¶'}, aligned to the baseline grid
+  Body first: same as Body, no indent${st.leadIn === 'smallcaps' ? ', first 3 words in small caps' : ''}${st.dropCap ? `, ${st.dropCap.lines}-line drop cap` : ''}
+  Chapter number: ${fam(ch.numberRole)} ${P(body * ch.numberScale)}${cs(ch.numberCase)}${ch.label ? `, “${ch.label} ”` : ''}, ${ch.number === 'roman' ? 'roman' : ch.number === 'word' ? 'spelled-out' : 'arabic'} numerals
+  Chapter title: ${fam(ch.titleRole)}${ch.titleItalic ? ital : ''} ${P(body * ch.titleScale)}${cs(ch.titleCase)}, sink of ${Math.round(ch.sink * 100)}% of the text block
+${head('Head A', st.heads[0])}
+${head('Head B', st.heads[1])}
+${head('Head C', st.heads[2])}
+  Running head: ${st.runhead.verso === 'none' ? 'none' : `${fam(st.runhead.role)}${cs(st.runhead.case)}, verso = ${st.runhead.verso === 'book' ? 'book title' : 'author'}, recto = ${st.runhead.recto === 'chapter' ? 'chapter title' : st.runhead.recto === 'book' ? 'book title' : '—'}`}
+  Folio: ${fam(st.folio.role)}, ${st.folio.position === 'foot-center' ? 'foot, centered' : st.folio.position === 'foot-outer' ? 'foot, outer corner' : 'head, outer corner'}${st.folio.dropOnOpening ? '; drops to the foot on openings' : '; omitted on openings'}
+  Notes: ${st.notes === 'side' ? 'side notes, in the notes column' : 'footnotes, with a short rule'}
+  Binding: ${d.bindingMm ? `+${d.bindingMm} mm already added to the inner margin` : 'no allowance'}
+`;
+  }
   return `
 ESTILOS DE PARÁGRAFO (livro)
   Texto: ${fam('text')} ${P(body)} / ${lead}, ${st.justify ? 'justificado' : 'alinhado à esquerda'}, ${st.paragraph === 'indent' ? 'recuo de 1 eme' : st.paragraph === 'space' ? 'espaço de 1 linha entre parágrafos' : 'parágrafos corridos com ¶'}, alinhado à grade de base
@@ -105,6 +123,42 @@ export function toSpecs(d: Derived): string {
   const L = (v: number) => `${round(v, 2)} ${u}`;
   const P = (v: number) => `${round(docToPt(v, u), 2)} pt`;
   const rows = g.rows.length;
+  if (getLang() === 'en') {
+    return `GRID SANDBOX · SPEC SHEET
+${d.format.name} · ${L(d.page.w)} × ${L(d.page.h)}${g.spread ? ' · double page' : ''}
+Grid: ${d.preset.type.name} · School: ${d.school.name}
+
+MARGINS
+  Top ${L(g.margins.top)} · Bottom ${L(g.margins.bottom)}
+  ${g.spread ? 'Inside' : 'Left'} ${L(g.margins.inner)} · ${g.spread ? 'Outside' : 'Right'} ${L(g.margins.outer)}
+COLUMNS  ${d.spec.cols} · gutter ${L(g.gutterX)}${d.spec.colRatios ? ` · ratios ${d.spec.colRatios.map((r) => round(r, 3)).join(' : ')}` : ''}
+ROWS     ${rows} · gutter ${L(g.gutterY)}
+LEADING (baseline)  ${P(g.baseline)} · starts at ${L(g.baselineOrigin)} from the top
+TYPOGRAPHY  Headings: ${d.school.display.family} ${d.school.display.weight} · Text: ${d.school.text.family} ${d.school.text.weight}
+${d.school.book ? bookSpecs(d) : ''}
+INDESIGN
+  1. File > New Document: ${L(d.page.w)} × ${L(d.page.h)}${g.spread ? ', facing pages' : ''}.
+  2. Margins and Columns: margins above; columns ${d.spec.cols}, gutter ${L(g.gutterX)}.
+  3. Layout > Create Guides: rows ${rows}, gutter ${L(g.gutterY)}, "fit guides to margins".
+  4. Preferences > Grids: baseline grid, start ${L(g.baselineOrigin)}, relative to top of page, increment every ${P(g.baseline)}.
+  5. Text: leading ${P(g.baseline)} and "align to baseline grid".
+
+ILLUSTRATOR
+  Artboard ${L(d.page.w)} × ${L(d.page.h)}. Draw a rectangle for the text block and use
+  Object > Path > Split Into Grid: rows ${rows} (gutter ${L(g.gutterY)}), columns ${d.spec.cols} (gutter ${L(g.gutterX)}),
+  check "Add Guides". Or open the exported SVG: the layers are already named.
+
+PHOTOSHOP
+  View > Guides > New Guide Layout: columns ${d.spec.cols} (gutter ${L(g.gutterX)}), rows ${rows} (gutter ${L(g.gutterY)}),
+  margins T ${L(g.margins.top)} L ${L(g.margins.inner)} B ${L(g.margins.bottom)} R ${L(g.margins.outer)}.
+
+FIGMA
+  Frame ${L(d.page.w)} × ${L(d.page.h)} > Layout grid:
+  Columns: count ${d.spec.cols}, Stretch, margin ${L(g.margins.inner)}, gutter ${L(g.gutterX)}
+  Rows: count ${rows}, Stretch, margin ${L(g.margins.top)}, gutter ${L(g.gutterY)}
+  Grid: size ${P(g.baseline)} (baseline)
+`;
+  }
   return `GRID SANDBOX · FICHA TÉCNICA
 ${d.format.name} · ${L(d.page.w)} × ${L(d.page.h)}${g.spread ? ' · página dupla' : ''}
 Grid: ${d.preset.type.name} · Escola: ${d.school.name}

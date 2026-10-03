@@ -1,3 +1,4 @@
+import { tx } from '../i18n';
 import type { Grid } from '../core/gridEngine';
 import type { Overlays } from '../store/useStore';
 import { round } from '../core/units';
@@ -31,12 +32,12 @@ export function GridStructure({ grid, overlays, ink, hair, buildStep, exportMode
   return (
     <g id="Grid">
       {show('modules', BUILD_INDEX.rows) && (
-        <g id="Modulos" className={anim(BUILD_INDEX.rows)}>
+        <g id={tx('Modulos', 'Modules')} className={anim(BUILD_INDEX.rows)}>
           {cols.map((c, ci) => rows.map((r, ri) => <rect key={`${ci}-${ri}`} x={c.start} y={r.start} width={c.size} height={r.size} fill={ink.module} />))}
         </g>
       )}
       {show('columns', BUILD_INDEX.columns) && (
-        <g id="Colunas" className={anim(BUILD_INDEX.columns)}>
+        <g id={tx('Colunas', 'Columns')} className={anim(BUILD_INDEX.columns)}>
           {cols.map((c, i) => (
             <rect key={i} x={c.start} y={top} width={c.size} height={bottom - top} fill={ink.column} />
           ))}
@@ -49,7 +50,7 @@ export function GridStructure({ grid, overlays, ink, hair, buildStep, exportMode
         </g>
       )}
       {buildStep === BUILD_INDEX.gutters && (
-        <g id="Calhas" className="pulse">
+        <g id={tx('Calhas', 'Gutters')} className="pulse">
           {pagesCols.map((pc) =>
             pc.slice(0, -1).map((c, i) => (
               <rect key={`${c.start}-${i}`} x={c.start + c.size} y={top} width={grid.gutterX} height={bottom - top} fill={ink.gutter} />
@@ -63,7 +64,7 @@ export function GridStructure({ grid, overlays, ink, hair, buildStep, exportMode
         </g>
       )}
       {show('rows', BUILD_INDEX.rows) && (
-        <g id="Campos" stroke={ink.line} strokeWidth={hair} className={anim(BUILD_INDEX.rows)}>
+        <g id={tx('Campos', 'Fields')} stroke={ink.line} strokeWidth={hair} className={anim(BUILD_INDEX.rows)}>
           {live.map((l, li) =>
             rows.map((r, i) => (
               <g key={`${li}-${i}`}>
@@ -75,12 +76,12 @@ export function GridStructure({ grid, overlays, ink, hair, buildStep, exportMode
         </g>
       )}
       {show('baseline', BUILD_INDEX.baseline) && baselines.length < 1500 && (
-        <g id="Linha-de-base" stroke={ink.baseline} strokeWidth={hair * 0.8} className={anim(BUILD_INDEX.baseline)}>
+        <g id={tx('Linha-de-base', 'Baseline')} stroke={ink.baseline} strokeWidth={hair * 0.8} className={anim(BUILD_INDEX.baseline)}>
           {live.map((l, li) => baselines.map((y) => <line key={`${li}-${y}`} x1={l.x} y1={y} x2={l.x + l.w} y2={y} pathLength={1} />))}
         </g>
       )}
       {show('margins', BUILD_INDEX.margins) && (
-        <g id="Margens" fill="none" stroke={ink.margin} strokeWidth={hair * 1.2} className={anim(BUILD_INDEX.margins)}>
+        <g id={tx('Margens', 'Margins')} fill="none" stroke={ink.margin} strokeWidth={hair * 1.2} className={anim(BUILD_INDEX.margins)}>
           {live.map((l, i) => (
             <rect key={i} x={l.x} y={l.y} width={l.w} height={l.h} pathLength={1} />
           ))}
@@ -95,7 +96,7 @@ export function Guides({ grid, overlays, ink, hair, buildStep }: Omit<Props, 'ex
   const eight = overlays.eightpt || grid.spec.guides.includes('eightpt');
   const unit = grid.page.unit === 'mm' ? (8 / 72) * 25.4 : 8;
   return (
-    <g id="Guias" pointerEvents="none">
+    <g id={tx('Guias', 'Guides')} pointerEvents="none">
       {showGuides &&
         grid.guides
           .filter((g) => g.kind !== 'eightpt')
@@ -145,7 +146,7 @@ export function Dimensions({ grid, ink, hair }: { grid: Grid; ink: InkColors; ha
   const unitLbl = u === 'mm' ? '' : 'px';
   const t = (v: number) => `${round(v, 1)}${unitLbl}`;
   return (
-    <g id="Cotas" className="ui-only" fontFamily="IBM Plex Mono, monospace" fontSize={fs} fill={ink.label}>
+    <g id={tx('Cotas', 'Dimensions')} className="ui-only" fontFamily="IBM Plex Mono, monospace" fontSize={fs} fill={ink.label}>
       <text x={l.x + l.w / 2} y={grid.margins.top / 2 + fs / 3} textAnchor="middle">
         {t(grid.margins.top)}
       </text>
@@ -166,7 +167,7 @@ export function Dimensions({ grid, ink, hair }: { grid: Grid; ink: InkColors; ha
       </text>
       {grid.cols.length > 1 && (
         <text x={c0.start + c0.size + grid.gutterX / 2} y={l.y - fs * 2.6} textAnchor="middle">
-          calha {t(grid.gutterX)}
+          {tx('calha', 'gutter')} {t(grid.gutterX)}
         </text>
       )}
     </g>

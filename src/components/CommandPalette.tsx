@@ -1,3 +1,4 @@
+import { tx } from '../i18n';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FORMATS } from '../core/formats';
 import { ARCHETYPES } from '../core/layoutGenerator';
@@ -24,36 +25,37 @@ export function CommandPalette() {
   const cmds = useMemo<Cmd[]>(() => {
     const st = useStore.getState;
     const ov: [keyof Overlays, string][] = [
-      ['margins', 'Margens'],
-      ['columns', 'Colunas'],
-      ['rows', 'Campos'],
-      ['modules', 'Módulos'],
-      ['baseline', 'Linha de base'],
-      ['guides', 'Guias'],
-      ['eightpt', 'Grade 8pt'],
-      ['tracing', 'Papel vegetal'],
-      ['dimensions', 'Cotas'],
+      ['margins', tx('Margens', 'Margins')],
+      ['columns', tx('Colunas', 'Columns')],
+      ['rows', tx('Campos', 'Fields')],
+      ['modules', tx('Módulos', 'Modules')],
+      ['baseline', tx('Linha de base', 'Baseline')],
+      ['guides', tx('Guias', 'Guides')],
+      ['eightpt', tx('Grade 8pt', '8pt grid')],
+      ['tracing', tx('Papel vegetal', 'Tracing paper')],
+      ['dimensions', tx('Cotas', 'Dimensions')],
     ];
     return [
-      { id: 'next', label: 'Próxima variação', group: 'Diagramação', run: () => st().next() },
-      { id: 'prev', label: 'Variação anterior', group: 'Diagramação', run: () => st().prev() },
-      { id: 'rand', label: 'Variação aleatória', group: 'Diagramação', run: () => st().random() },
-      { id: 'auto', label: 'Alternar autoplay', group: 'Diagramação', run: () => st().set({ autoplay: !st().autoplay }) },
-      { id: 'manual', label: 'Modo manual', group: 'Diagramação', run: () => st().set({ mode: 'manual' }) },
-      { id: 'automode', label: 'Modo automático', group: 'Diagramação', run: () => st().set({ mode: 'auto' }) },
-      { id: 'build', label: 'Construir grid passo a passo', group: 'Aprender', run: () => st().set({ buildStep: 0, buildPlaying: true }) },
-      { id: 'export', label: 'Exportar…', group: 'Arquivo', run: () => st().set({ exportOpen: true }) },
-      { id: 'help', label: 'Atalhos e ajuda', group: 'Aprender', run: () => st().set({ helpOpen: true }) },
-      { id: 'about', label: 'Sobre o projeto e créditos', group: 'Aprender', run: () => st().set({ aboutOpen: true }) },
-      { id: 'orient', label: 'Alternar orientação', group: 'Formato', run: () => st().toggleOrientation() },
-      { id: 'spread', label: 'Alternar página dupla', group: 'Formato', run: () => st().set({ spread: !st().spread }) },
-      ...FORMATS.map((f) => ({ id: `f-${f.id}`, label: `Formato: ${f.name}`, group: 'Formato', run: () => st().setFormat(f.id) })),
+      { id: 'next', label: tx('Próxima variação', 'Next variation'), group: tx('Diagramação', 'Layout'), run: () => st().next() },
+      { id: 'prev', label: tx('Variação anterior', 'Previous variation'), group: tx('Diagramação', 'Layout'), run: () => st().prev() },
+      { id: 'rand', label: tx('Variação aleatória', 'Random variation'), group: tx('Diagramação', 'Layout'), run: () => st().random() },
+      { id: 'auto', label: tx('Alternar autoplay', 'Toggle autoplay'), group: tx('Diagramação', 'Layout'), run: () => st().set({ autoplay: !st().autoplay }) },
+      { id: 'manual', label: tx('Modo manual', 'Manual mode'), group: tx('Diagramação', 'Layout'), run: () => st().set({ mode: 'manual' }) },
+      { id: 'automode', label: tx('Modo automático', 'Automatic mode'), group: tx('Diagramação', 'Layout'), run: () => st().set({ mode: 'auto' }) },
+      { id: 'build', label: tx('Construir grid passo a passo', 'Build the grid step by step'), group: tx('Aprender', 'Learn'), run: () => st().set({ buildStep: 0, buildPlaying: true }) },
+      { id: 'export', label: tx('Exportar…', 'Export…'), group: tx('Arquivo', 'File'), run: () => st().set({ exportOpen: true }) },
+      { id: 'help', label: tx('Atalhos e ajuda', 'Shortcuts and help'), group: tx('Aprender', 'Learn'), run: () => st().set({ helpOpen: true }) },
+      { id: 'about', label: tx('Sobre o projeto e créditos', 'About the project and credits'), group: tx('Aprender', 'Learn'), run: () => st().set({ aboutOpen: true }) },
+      { id: 'orient', label: tx('Alternar orientação', 'Toggle orientation'), group: tx('Formato', 'Format'), run: () => st().toggleOrientation() },
+      { id: 'lang', label: tx('Interface em inglês (English)', 'Interface in Portuguese (Português)'), group: tx('Idioma', 'Language'), run: () => st().setUiLang(st().uiLang === 'en' ? 'pt' : 'en') },
+      { id: 'spread', label: tx('Alternar página dupla', 'Toggle double page'), group: tx('Formato', 'Format'), run: () => st().set({ spread: !st().spread }) },
+      ...FORMATS.map((f) => ({ id: `f-${f.id}`, label: `${tx('Formato', 'Format')}: ${f.name}`, group: tx('Formato', 'Format'), run: () => st().setFormat(f.id) })),
       ...d.presets.map((p) => ({ id: `g-${p.id}`, label: `Grid: ${p.type.name}`, group: 'Grid', run: () => st().setGrid(p.id) })),
-      ...SCHOOLS.map((sc) => ({ id: `s-${sc.id}`, label: `Escola: ${sc.name}`, group: 'Escola', run: () => st().setSchool(sc.id, true) })),
-      ...ARCHETYPES.map((a) => ({ id: `a-${a.id}`, label: `Combinação: ${a.name}`, group: 'Diagramação', run: () => st().set({ archetypeLock: a.id, variation: 0 }) })),
-      ...ov.map(([k, l]) => ({ id: `o-${k}`, label: `Mostrar/ocultar: ${l}`, group: 'Visualização', run: () => st().toggleOverlay(k) })),
+      ...SCHOOLS.map((sc) => ({ id: `s-${sc.id}`, label: `${tx('Escola', 'School')}: ${sc.name}`, group: tx('Escola', 'School'), run: () => st().setSchool(sc.id, true) })),
+      ...ARCHETYPES.map((a) => ({ id: `a-${a.id}`, label: `${tx('Combinação', 'Combination')}: ${a.name}`, group: tx('Diagramação', 'Layout'), run: () => st().set({ archetypeLock: a.id, variation: 0 }) })),
+      ...ov.map(([k, l]) => ({ id: `o-${k}`, label: `${tx('Mostrar/ocultar', 'Show/hide')}: ${l}`, group: tx('Visualização', 'View'), run: () => st().toggleOverlay(k) })),
     ];
-  }, [d.presets]);
+  }, [d.presets, s.uiLang]);
 
   const list = useMemo(() => {
     const t = norm(q.trim());
@@ -70,11 +72,11 @@ export function CommandPalette() {
 
   return (
     <div className="modal-back" onPointerDown={(e) => e.target === e.currentTarget && s.set({ paletteOpen: false })}>
-      <div className="palette" role="dialog" aria-label="Comandos">
+      <div className="palette" role="dialog" aria-label={tx('Comandos', 'Commands')}>
         <input
           ref={inputRef}
           className="palette-input"
-          placeholder="Buscar comando, grid, formato, escola…"
+          placeholder={tx('Buscar comando, grid, formato, escola…', 'Search command, grid, format, school…')}
           value={q}
           onChange={(e) => {
             setQ(e.target.value);
@@ -100,7 +102,7 @@ export function CommandPalette() {
               </button>
             </li>
           ))}
-          {!list.length && <li className="muted small pad">Nada encontrado.</li>}
+          {!list.length && <li className="muted small pad">{tx('Nada encontrado.', 'Nothing found.')}</li>}
         </ul>
       </div>
     </div>

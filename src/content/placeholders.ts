@@ -1,3 +1,5 @@
+import { bilingual } from '../i18n';
+
 export type PlaceholderLang = 'pt' | 'latin' | 'grid';
 
 const LATIN = [
@@ -14,6 +16,13 @@ const PT = [
   'O espaço em branco não é desperdício. Ele dá respiro ao conteúdo, separa ideias, cria pausas e conduz o olhar. Uma composição sem vazios é como uma frase sem vírgulas: tecnicamente possível, praticamente ilegível.',
 ];
 
+const EN = [
+  'Once upon a time there was a blank page waiting for order. The designer drew the margins, divided the text area into columns and, little by little, every word found its place without apparent effort, as if it had always been there.',
+  'Typography is the art of giving visible form to language. When readers do not notice the structure, yet read comfortably from beginning to end, the work has fulfilled its noblest and quietest purpose.',
+  'Each column works like a street; the gutters are the sidewalks and the baseline is the ground everyone shares. In a well-designed city nobody gets lost, even without a map, because the rhythm guides every step.',
+  'White space is not waste. It lets the content breathe, separates ideas, creates pauses and leads the eye. A composition without empty space is like a sentence without commas: technically possible, practically unreadable.',
+];
+
 const GRID = [
   'O grid divide a superfície bidimensional em campos menores. Os campos podem ter a mesma largura ou não; a altura corresponde a um número inteiro de linhas de texto, e as distâncias entre eles equivalem a uma linha vazia.',
   'Com o grid, o designer organiza texto, imagem e espaço de modo objetivo e funcional. A informação ganha clareza, a leitura fica mais rápida e o leitor confia no conteúdo apresentado com ordem.',
@@ -21,7 +30,14 @@ const GRID = [
   'Todas as dimensões nascem da entrelinha: altura dos campos, calhas, margens. Assim o texto de colunas vizinhas compartilha a mesma linha de base e a página inteira vibra no mesmo compasso.',
 ];
 
-const BANKS: Record<PlaceholderLang, string[]> = { pt: PT, latin: LATIN, grid: GRID };
+const GRID_EN = [
+  'The grid divides a two-dimensional surface into smaller fields. The fields may or may not share the same width; their height matches a whole number of text lines, and the space between them equals one empty line.',
+  'With a grid, the designer organizes text, image and space objectively and functionally. Information gains clarity, reading becomes faster and readers trust content that is presented in order.',
+  'The more fields a grid has, the more combinations it offers; the fewer, the simpler and more monumental the result. Choosing the number of fields means choosing the degree of freedom.',
+  'Every dimension grows from the leading: field heights, gutters, margins. That way text in neighboring columns shares the same baseline and the whole page beats in the same measure.',
+];
+
+const BANKS: Record<PlaceholderLang, string[]> = bilingual({ pt: PT, latin: LATIN, grid: GRID }, { pt: EN, grid: GRID_EN });
 
 export function paragraph(lang: PlaceholderLang, i: number): string {
   const bank = BANKS[lang];
@@ -33,19 +49,26 @@ export function bodyText(lang: PlaceholderLang, i: number, paragraphs = 14): str
   return Array.from({ length: paragraphs }, (_, k) => paragraph(lang, i + k)).join('\n');
 }
 
-export const CAPTIONS = [
-  'Fig. 1 — Estudo de proporção sobre papel vegetal.',
-  'Fig. 2 — A linha de base sincroniza colunas vizinhas.',
-  'Fig. 3 — Campos vazios como pausas de leitura.',
-  'Foto: arquivo do estúdio.',
-  'Detalhe do cartaz original, 1958.',
-];
+export const CAPTIONS = bilingual(
+  [
+    'Fig. 1 — Estudo de proporção sobre papel vegetal.',
+    'Fig. 2 — A linha de base sincroniza colunas vizinhas.',
+    'Fig. 3 — Campos vazios como pausas de leitura.',
+    'Foto: arquivo do estúdio.',
+    'Detalhe do cartaz original, 1958.',
+  ],
+  [
+    'Fig. 1 — Proportion study on tracing paper.',
+    'Fig. 2 — The baseline keeps neighboring columns in sync.',
+    'Fig. 3 — Empty fields as reading pauses.',
+    'Photo: studio archive.',
+    'Detail of the original poster, 1958.',
+  ],
+);
 
-export const SUBHEADS = [
-  'Como ordem e proporção constroem a leitura',
-  'Um sistema para organizar texto e imagem',
-  'Estrutura invisível, leitura visível',
-  'Notas sobre margens, colunas e ritmo',
-];
+export const SUBHEADS = bilingual(
+  ['Como ordem e proporção constroem a leitura', 'Um sistema para organizar texto e imagem', 'Estrutura invisível, leitura visível', 'Notas sobre margens, colunas e ritmo'],
+  ['How order and proportion build reading', 'A system for organizing text and image', 'Invisible structure, visible reading', 'Notes on margins, columns and rhythm'],
+);
 
-export const LABEL_IMAGE = ['Imagem', 'Foto', 'Ilustração', 'Gráfico'];
+export const LABEL_IMAGE = bilingual(['Imagem', 'Foto', 'Ilustração', 'Gráfico'], ['Image', 'Photo', 'Illustration', 'Chart']);

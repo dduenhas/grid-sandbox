@@ -1,3 +1,4 @@
+import { tx } from '../i18n';
 import { forwardRef, type PointerEvent as RPE, type Ref } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { spanRect, type Grid } from '../core/gridEngine';
@@ -84,7 +85,7 @@ export const ArtboardSVG = forwardRef<SVGSVGElement, ArtboardProps>(function Art
         </clipPath>
       </defs>
       {!exportMode && <Rulers grid={grid} pad={pad} hair={hair} />}
-      <g id="Papel">
+      <g id={tx('Papel', 'Paper')}>
         {grid.pages.map((pg, i) => (
           <rect key={i} className="paper" x={pg.x} y={pg.y} width={pg.w} height={pg.h} fill={school.palette.paper} onPointerDown={p.onBackgroundDown} />
         ))}
@@ -102,7 +103,7 @@ export const ArtboardSVG = forwardRef<SVGSVGElement, ArtboardProps>(function Art
           </g>
         )}
         <g transform={rot}>
-          <g id="Elementos">
+          <g id={tx('Elementos', 'Elements')}>
             {exportMode ? (
               p.blocks.map((b) => <StaticBlock key={b.id} b={b} grid={grid} ctx={ctx} />)
             ) : (

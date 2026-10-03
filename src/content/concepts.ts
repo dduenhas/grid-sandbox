@@ -1,4 +1,6 @@
 import type { GridTypeId } from '../core/gridEngine';
+import { bilingual } from '../i18n';
+import { BUILD_STEPS_EN, CONCEPTS_EN, GRID_CONCEPTS_EN } from './en/concepts';
 
 export interface GridConcept {
   title: string;
@@ -10,7 +12,7 @@ export interface GridConcept {
   mistakes: string[];
 }
 
-export const GRID_CONCEPTS: Record<GridTypeId, GridConcept> = {
+const GRID_CONCEPTS_PT: Record<GridTypeId, GridConcept> = {
   manuscript: {
     title: 'Grid manuscrito (bloco único)',
     origin: 'Manuscritos medievais e livros incunábulos. O cânone de Villard de Honnecourt e Van de Graaf (redescoberto por Tschichold) define a mancha pela diagonal da página.',
@@ -235,13 +237,15 @@ export const GRID_CONCEPTS: Record<GridTypeId, GridConcept> = {
   },
 };
 
+export const GRID_CONCEPTS = bilingual(GRID_CONCEPTS_PT, GRID_CONCEPTS_EN);
+
 export interface Concept {
   id: string;
   term: string;
   def: string;
 }
 
-export const CONCEPTS: Concept[] = [
+const CONCEPTS_PT: Concept[] = [
   { id: 'mancha', term: 'Mancha (área útil)', def: 'Área da página ocupada pelo conteúdo, delimitada pelas margens.' },
   { id: 'margens', term: 'Margens', def: 'Espaço entre a mancha e o corte. Emolduram, dão respiro e protegem do refile e da encadernação. Margens progressivas: interna < superior < externa < inferior.' },
   { id: 'coluna', term: 'Coluna', def: 'Divisão vertical da mancha. Define a medida das linhas de texto.' },
@@ -256,13 +260,15 @@ export const CONCEPTS: Concept[] = [
   { id: 'hierarquia', term: 'Hierarquia', def: 'Ordem de leitura criada por tamanho, peso, cor, posição e espaço.' },
 ];
 
+export const CONCEPTS = bilingual(CONCEPTS_PT, CONCEPTS_EN);
+
 export interface BuildStep {
   id: 'page' | 'margins' | 'columns' | 'gutters' | 'rows' | 'baseline' | 'elements';
   title: string;
   text: string;
 }
 
-export const BUILD_STEPS: BuildStep[] = [
+const BUILD_STEPS_PT: BuildStep[] = [
   { id: 'page', title: '1. O formato', text: 'Tudo começa pela folha. A proporção do formato condiciona cada decisão seguinte.' },
   { id: 'margins', title: '2. As margens', text: 'As margens definem a mancha. Margens generosas dão dignidade; a inferior costuma ser a maior para a mancha não “cair”.' },
   { id: 'columns', title: '3. As colunas', text: 'Dividimos a mancha verticalmente. O número de colunas define a medida do texto e as possibilidades de combinação.' },
@@ -271,3 +277,5 @@ export const BUILD_STEPS: BuildStep[] = [
   { id: 'baseline', title: '6. A linha de base', text: 'A grade de linhas de base sincroniza todo o texto. Os campos se encaixam nela; a margem inferior se ajusta.' },
   { id: 'elements', title: '7. Os elementos', text: 'Agora os recortes entram na página: título, imagens e texto encaixam nos campos. Mude a combinação com ◀ ▶.' },
 ];
+
+export const BUILD_STEPS = bilingual(BUILD_STEPS_PT, BUILD_STEPS_EN);

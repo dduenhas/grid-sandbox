@@ -4,6 +4,7 @@ import { CLASSIC_SCALE_PT, getRatio, measureChars, modularScale } from '../core/
 import { bodySizeFor } from '../core/bookScore';
 import { docToPt, fmt, round } from '../core/units';
 import { spanRect } from '../core/gridEngine';
+import { tx } from '../i18n';
 
 export function NumbersPanel() {
   const d = useDerived();
@@ -16,21 +17,21 @@ export function NumbersPanel() {
   const bodies = d.blocks.filter((b) => b.kind === 'body');
   const pt = (v: number) => `${round(docToPt(v, u), 1)} pt`;
   const rows: [string, string][] = [
-    ['Página', `${fmt(d.page.w, u)} × ${fmt(d.page.h, u)}`],
-    ['Mancha', `${fmt(g.live[0].w, u)} × ${fmt(g.live[0].h, u)}`],
-    ['Ocupação da página', `${round(((g.live[0].w * g.live[0].h) / (d.page.w * d.page.h)) * 100, 0)}%`],
-    ['Margens (S / I / Int / Ext)', `${round(g.margins.top)} / ${round(g.margins.bottom)} / ${round(g.margins.inner)} / ${round(g.margins.outer)} ${u}`],
-    ['Colunas', `${d.spec.cols} × ${g.cols.map((c) => round(c.size)).filter((v, i, a) => a.indexOf(v) === i).join(' / ')} ${u}`],
-    ['Calhas', `${fmt(g.gutterX, u)} (h) · ${fmt(g.gutterY, u)} (v)`],
-    ['Campos', `${g.cols.length} × ${g.rows.length} = ${g.cols.length * g.rows.length}`],
-    ['Linhas por campo', lines.filter((v, i, a) => a.indexOf(v) === i).join(' / ')],
-    ['Entrelinha', `${pt(g.baseline)} (${fmt(g.baseline, u, 2)})`],
-    ['Corpo do texto', `${pt(body)} (entrelinha ${round((g.baseline / body) * 100, 0)}%)`],
-    ['Medida por coluna', `${measureChars(g.cols[0].size, body)} caracteres`],
+    [tx('Página', 'Page'), `${fmt(d.page.w, u)} × ${fmt(d.page.h, u)}`],
+    [tx('Mancha', 'Text block'), `${fmt(g.live[0].w, u)} × ${fmt(g.live[0].h, u)}`],
+    [tx('Ocupação da página', 'Page coverage'), `${round(((g.live[0].w * g.live[0].h) / (d.page.w * d.page.h)) * 100, 0)}%`],
+    [tx('Margens (S / I / Int / Ext)', 'Margins (T / B / In / Out)'), `${round(g.margins.top)} / ${round(g.margins.bottom)} / ${round(g.margins.inner)} / ${round(g.margins.outer)} ${u}`],
+    [tx('Colunas', 'Columns'), `${d.spec.cols} × ${g.cols.map((c) => round(c.size)).filter((v, i, a) => a.indexOf(v) === i).join(' / ')} ${u}`],
+    [tx('Calhas', 'Gutters'), `${fmt(g.gutterX, u)} (h) · ${fmt(g.gutterY, u)} (v)`],
+    [tx('Campos', 'Fields'), `${g.cols.length} × ${g.rows.length} = ${g.cols.length * g.rows.length}`],
+    [tx('Linhas por campo', 'Lines per field'), lines.filter((v, i, a) => a.indexOf(v) === i).join(' / ')],
+    [tx('Entrelinha', 'Leading'), `${pt(g.baseline)} (${fmt(g.baseline, u, 2)})`],
+    [tx('Corpo do texto', 'Body size'), `${pt(body)} (${tx('entrelinha', 'leading')} ${round((g.baseline / body) * 100, 0)}%)`],
+    [tx('Medida por coluna', 'Measure per column'), `${measureChars(g.cols[0].size, body)} ${tx('caracteres', 'characters')}`],
   ];
   return (
     <div className="panel-inner">
-      <Section title="Números do grid">
+      <Section title={tx('Números do grid', 'Grid numbers')}>
         <table className="nums">
           <tbody>
             {rows.map(([k, v]) => (
@@ -43,7 +44,7 @@ export function NumbersPanel() {
         </table>
       </Section>
       {bodies.length > 0 && (
-        <Section title="Medida dos blocos de texto">
+        <Section title={tx('Medida dos blocos de texto', 'Measure of the text blocks')}>
           <table className="nums">
             <tbody>
               {bodies.map((b) => {
@@ -53,7 +54,9 @@ export function NumbersPanel() {
                     <th>
                       {b.id} · {b.cs} col
                     </th>
-                    <td className={`mono ${m < 40 || m > 80 ? 'warn' : 'ok'}`}>{m} car.</td>
+                    <td className={`mono ${m < 40 || m > 80 ? 'warn' : 'ok'}`}>
+                      {m} {tx('car.', 'ch.')}
+                    </td>
                   </tr>
                 );
               })}
@@ -61,8 +64,14 @@ export function NumbersPanel() {
           </table>
         </Section>
       )}
-      <Section title={`Escala tipográfica · ${ratio.name} (${round(ratio.ratio, 3)})`}>
-        <p className="small muted">{ratio.note}. Os títulos usam o maior degrau que cabe no bloco, numa escala de dupla cadeia (Bringhurst: uma segunda série começa em corpo × √razão).</p>
+      <Section title={`${tx('Escala tipográfica', 'Type scale')} · ${ratio.name} (${round(ratio.ratio, 3)})`}>
+        <p className="small muted">
+          {ratio.note}.{' '}
+          {tx(
+            'Os títulos usam o maior degrau que cabe no bloco, numa escala de dupla cadeia (Bringhurst: uma segunda série começa em corpo × √razão).',
+            'Headings use the largest step that fits the block, on a double-stranded scale (Bringhurst: a second series starts at body × √ratio).',
+          )}
+        </p>
         <div className="scale">
           {scale.map((v, i) => (
             <div key={i} className="scale-step">
@@ -73,7 +82,9 @@ export function NumbersPanel() {
             </div>
           ))}
         </div>
-        <p className="small muted">Escala clássica dos tipógrafos: {CLASSIC_SCALE_PT.join(' · ')} pt.</p>
+        <p className="small muted">
+          {tx('Escala clássica dos tipógrafos', 'The printers’ classic scale')}: {CLASSIC_SCALE_PT.join(' · ')} pt.
+        </p>
       </Section>
     </div>
   );

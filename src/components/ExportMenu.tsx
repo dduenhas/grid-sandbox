@@ -1,3 +1,4 @@
+import { tx } from '../i18n';
 import { useMemo, useRef, useState } from 'react';
 import { useDerived, useStore } from '../store/useStore';
 import { Modal, Segmented, Toggle } from './ui';
@@ -28,7 +29,7 @@ export function ExportMenu() {
 
   const svg = () => {
     downloadText(toSVG(d, opts), `${base}.svg`, 'image/svg+xml');
-    setMsg('SVG salvo. No Illustrator: Arquivo > Abrir. No Figma: arraste o arquivo para o canvas.');
+    setMsg(tx('SVG salvo. No Illustrator: Arquivo > Abrir. No Figma: arraste o arquivo para o canvas.', 'SVG saved. In Illustrator: File > Open. In Figma: drag the file onto the canvas.'));
   };
 
   const png = async (label: string, pxW: number, pxH: number) => {
@@ -38,9 +39,9 @@ export function ExportMenu() {
       const markup = toSVG(d, { ...opts, embedFontCss: fonts });
       const blob = await svgToPng(markup, pxW, pxH, d.school.palette.paper);
       downloadBlob(blob, `${base}-${label}.png`);
-      setMsg(`PNG ${Math.round(pxW)} × ${Math.round(pxH)} px salvo. Abra no Photoshop como camada de referência.`);
+      setMsg(tx(`PNG ${Math.round(pxW)} × ${Math.round(pxH)} px salvo. Abra no Photoshop como camada de referência.`, `PNG ${Math.round(pxW)} × ${Math.round(pxH)} px saved. Open it in Photoshop as a reference layer.`));
     } catch (e) {
-      setMsg(`Erro: ${(e as Error).message}`);
+      setMsg(`${tx('Erro', 'Error')}: ${(e as Error).message}`);
     } finally {
       setBusy(null);
     }
@@ -62,39 +63,39 @@ export function ExportMenu() {
 
   const copy = async (t: string) => {
     await navigator.clipboard.writeText(t);
-    setMsg('Copiado para a área de transferência.');
+    setMsg(tx('Copiado para a área de transferência.', 'Copied to the clipboard.'));
   };
 
   const onImport = async (f: File) => {
     const ok = s.importProject(await f.text());
-    setMsg(ok ? 'Projeto importado.' : 'Arquivo inválido.');
+    setMsg(ok ? tx('Projeto importado.', 'Project imported.') : tx('Arquivo inválido.', 'Invalid file.'));
   };
 
   return (
-    <Modal title="Exportar para a ferramenta final" onClose={close} wide>
+    <Modal title={tx('Exportar para a ferramenta final', 'Export to your final tool')} onClose={close} wide>
       <Segmented
-        label="Tipo"
+        label={tx('Tipo', 'Type')}
         value={tab}
         onChange={setTab}
         options={[
-          { id: 'files', label: 'Arquivos' },
+          { id: 'files', label: tx('Arquivos', 'Files') },
           { id: 'css', label: 'CSS / tokens' },
-          { id: 'specs', label: 'Ficha técnica' },
+          { id: 'specs', label: tx('Ficha técnica', 'Spec sheet') },
         ]}
       />
       {tab === 'files' && (
         <div className="export-grid">
           <div className="export-card">
-            <h4>SVG vetorial</h4>
-            <p className="small muted">Dimensões reais ({mm ? 'mm' : 'px'}), camadas nomeadas: Papel, Grid, Elementos, Guias. Para Illustrator, Figma, Affinity e Inkscape.</p>
-            <Toggle label="Incluir o grid como camada" checked={includeGrid} onChange={setIncludeGrid} />
+            <h4>{tx('SVG vetorial', 'Vector SVG')}</h4>
+            <p className="small muted">{tx(`Dimensões reais (${mm ? 'mm' : 'px'}), camadas nomeadas: Papel, Grid, Elementos, Guias. Para Illustrator, Figma, Affinity e Inkscape.`, `Real dimensions (${mm ? 'mm' : 'px'}), named layers: Paper, Grid, Elements, Guides. For Illustrator, Figma, Affinity and Inkscape.`)}</p>
+            <Toggle label={tx('Incluir o grid como camada', 'Include the grid as a layer')} checked={includeGrid} onChange={setIncludeGrid} />
             <button className="btn primary" onClick={svg}>
-              Baixar SVG
+              {tx('Baixar SVG', 'Download SVG')}
             </button>
           </div>
           <div className="export-card">
             <h4>PNG</h4>
-            <p className="small muted">Fontes incorporadas. Ideal como referência no Photoshop ou para apresentar.</p>
+            <p className="small muted">{tx('Fontes incorporadas. Ideal como referência no Photoshop ou para apresentar.', 'Fonts embedded. Ideal as a reference in Photoshop or for presenting.')}</p>
             <div className="row-inline wrap">
               {pngs.map((p) => (
                 <button key={p.label} className="btn" disabled={!!busy} onClick={() => png(p.label, p.w, p.h)}>
@@ -104,23 +105,23 @@ export function ExportMenu() {
             </div>
           </div>
           <div className="export-card">
-            <h4>Projeto (JSON)</h4>
-            <p className="small muted">Salva formato, grid, escola, variação e edições manuais. Reabra depois ou compartilhe.</p>
+            <h4>{tx('Projeto (JSON)', 'Project (JSON)')}</h4>
+            <p className="small muted">{tx('Salva formato, grid, escola, variação e edições manuais. Reabra depois ou compartilhe.', 'Saves format, grid, school, variation and manual edits. Reopen later or share it.')}</p>
             <div className="row-inline wrap">
               <button className="btn" onClick={() => downloadText(toJSON(s), `${base}.grid.json`, 'application/json')}>
-                Exportar JSON
+                {tx('Exportar JSON', 'Export JSON')}
               </button>
               <button className="btn" onClick={() => fileRef.current?.click()}>
-                Importar…
+                {tx('Importar…', 'Import…')}
               </button>
               <input ref={fileRef} type="file" accept=".json,application/json" hidden onChange={(e) => e.target.files?.[0] && onImport(e.target.files[0])} />
             </div>
           </div>
           <div className="export-card">
             <h4>Link</h4>
-            <p className="small muted">O endereço da página guarda formato, grid, escola e variação.</p>
+            <p className="small muted">{tx('O endereço da página guarda formato, grid, escola e variação.', 'The page address stores format, grid, school and variation.')}</p>
             <button className="btn" onClick={() => copy(location.href)}>
-              Copiar link
+              {tx('Copiar link', 'Copy link')}
             </button>
           </div>
         </div>
@@ -130,10 +131,10 @@ export function ExportMenu() {
           <pre className="code">{css}</pre>
           <div className="row-inline">
             <button className="btn primary" onClick={() => copy(css)}>
-              Copiar CSS
+              {tx('Copiar CSS', 'Copy CSS')}
             </button>
             <button className="btn" onClick={() => downloadText(css, `${base}.css`, 'text/css')}>
-              Baixar .css
+              {tx('Baixar .css', 'Download .css')}
             </button>
           </div>
         </div>
@@ -143,10 +144,10 @@ export function ExportMenu() {
           <pre className="code">{specs}</pre>
           <div className="row-inline">
             <button className="btn primary" onClick={() => copy(specs)}>
-              Copiar ficha
+              {tx('Copiar ficha', 'Copy sheet')}
             </button>
             <button className="btn" onClick={() => downloadText(specs, `${base}.txt`)}>
-              Baixar .txt
+              {tx('Baixar .txt', 'Download .txt')}
             </button>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import type { Unit } from './units';
 import { ptToDoc } from './units';
+import { bilingualList, tx } from '../i18n';
 
 export type Orientation = 'portrait' | 'landscape';
 export type Medium = 'print' | 'screen';
@@ -21,7 +22,7 @@ export interface Format {
 const P: Orientation = 'portrait';
 const L: Orientation = 'landscape';
 
-export const FORMATS: Format[] = [
+const FORMATS_PT: Format[] = [
   { id: 'a4', name: 'A4', medium: 'print', unit: 'mm', w: 210, h: 297, leadingPt: 12, defaultOrientation: P, note: 'ISO 216, proporção 1:√2' },
   { id: 'a3', name: 'A3', medium: 'print', unit: 'mm', w: 297, h: 420, leadingPt: 14, defaultOrientation: P, note: 'ISO 216, cartaz pequeno e jornal' },
   { id: 'a5', name: 'A5', medium: 'print', unit: 'mm', w: 148, h: 210, leadingPt: 11, defaultOrientation: P, note: 'ISO 216, folheto e livro de bolso' },
@@ -42,6 +43,21 @@ export const FORMATS: Format[] = [
   { id: 'ig-story', name: 'Story 9:16', medium: 'screen', unit: 'px', w: 1080, h: 1920, leadingPt: 44, defaultOrientation: P },
 ];
 
+export const FORMATS: Format[] = bilingualList(FORMATS_PT, {
+  a4: { note: 'ISO 216, 1:√2 ratio' },
+  a3: { note: 'ISO 216, small poster and newspaper' },
+  a5: { note: 'ISO 216, leaflet and pocket book' },
+  letter: { name: 'Letter', note: 'North American standard, 8.5 × 11 in' },
+  tabloid: { name: 'Tabloid', note: '11 × 17 in, tabloid newspaper' },
+  poster: { name: 'Poster 50×70', note: 'Classic poster size' },
+  book: { name: 'Book 16×23', note: 'Common book size in Brazil' },
+  square: { name: 'Square 21×21', note: 'Catalog, record sleeve' },
+  card: { name: 'Business card', note: '9 × 5.5 cm' },
+  desktop: { note: 'Common desktop viewport' },
+  slide: { note: 'Full HD presentation' },
+  mobile: { note: 'iPhone 12 to 15' },
+});
+
 export interface CustomSize {
   w: number;
   h: number;
@@ -52,7 +68,7 @@ export function getFormat(id: string, custom?: CustomSize): Format {
   if (id === 'custom' && custom) {
     return {
       id: 'custom',
-      name: 'Personalizado',
+      name: tx('Personalizado', 'Custom'),
       medium: custom.unit === 'mm' ? 'print' : 'screen',
       unit: custom.unit,
       w: Math.min(custom.w, custom.h),

@@ -5,6 +5,7 @@ import { clearMeasureCache } from '../render/text';
 import { FORMATS } from '../core/formats';
 import { GRID_TYPES } from '../core/gridPresets';
 import type { GridTypeId } from '../core/gridEngine';
+import { isUiLang } from '../i18n';
 
 const isTyping = (e: KeyboardEvent) => {
   const t = e.target as HTMLElement | null;
@@ -184,6 +185,8 @@ export function useUrlSync() {
 
 function applyHash() {
   const h = new URLSearchParams(location.hash.slice(1));
+  const lang = h.get('lang') ?? new URLSearchParams(location.search).get('lang');
+  if (isUiLang(lang) && lang !== useStore.getState().uiLang) useStore.getState().setUiLang(lang);
   const patch: Partial<State> = {};
   const f = h.get('f');
   if (f && FORMATS.some((x) => x.id === f)) patch.formatId = f;

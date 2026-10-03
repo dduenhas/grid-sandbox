@@ -1,3 +1,4 @@
+import { tx } from '../i18n';
 import { useEffect } from 'react';
 import { BUILD_STEPS } from '../content/concepts';
 import { useDerived, useStore } from '../store/useStore';
@@ -24,20 +25,20 @@ export function BuildCaption() {
   const g = d.grid;
   const u = d.page.unit;
   const facts: Record<string, string> = {
-    page: `${d.format.name}: ${fmt(d.page.w, u)} × ${fmt(d.page.h, u)}${s.spread ? ' (página dupla)' : ''}`,
-    margins: `Sup. ${fmt(g.margins.top, u)} · Int. ${fmt(g.margins.inner, u)} · Ext. ${fmt(g.margins.outer, u)} · Inf. ${fmt(g.margins.bottom, u)}`,
-    columns: `${d.spec.cols} colunas de ${fmt(g.cols[0].size, u)}${d.spec.colRatios ? ' (proporcionais)' : ''}`,
-    gutters: `Calha ${fmt(g.gutterX, u)}${d.spec.baselineLock ? ' = 1 entrelinha' : ''}`,
-    rows: `${g.rows.length} linhas → ${g.cols.length * g.rows.length} campos`,
-    baseline: `Entrelinha ${fmtPt(g.baseline, u)} · ${d.spec.baselineLock ? 'campos travados na entrelinha' : 'campos livres'}`,
-    elements: `${d.blocks.length} elementos · ${d.blocks.filter((b) => b.kind === 'image').length} imagens`,
+    page: `${d.format.name}: ${fmt(d.page.w, u)} × ${fmt(d.page.h, u)}${s.spread ? tx(' (página dupla)', ' (double page)') : ''}`,
+    margins: tx(`Sup. ${fmt(g.margins.top, u)} · Int. ${fmt(g.margins.inner, u)} · Ext. ${fmt(g.margins.outer, u)} · Inf. ${fmt(g.margins.bottom, u)}`, `Top ${fmt(g.margins.top, u)} · In. ${fmt(g.margins.inner, u)} · Out. ${fmt(g.margins.outer, u)} · Bottom ${fmt(g.margins.bottom, u)}`),
+    columns: tx(`${d.spec.cols} colunas de ${fmt(g.cols[0].size, u)}${d.spec.colRatios ? ' (proporcionais)' : ''}`, `${d.spec.cols} columns of ${fmt(g.cols[0].size, u)}${d.spec.colRatios ? ' (proportional)' : ''}`),
+    gutters: tx(`Calha ${fmt(g.gutterX, u)}${d.spec.baselineLock ? ' = 1 entrelinha' : ''}`, `Gutter ${fmt(g.gutterX, u)}${d.spec.baselineLock ? ' = 1 line of leading' : ''}`),
+    rows: tx(`${g.rows.length} linhas → ${g.cols.length * g.rows.length} campos`, `${g.rows.length} rows → ${g.cols.length * g.rows.length} fields`),
+    baseline: tx(`Entrelinha ${fmtPt(g.baseline, u)} · ${d.spec.baselineLock ? 'campos travados na entrelinha' : 'campos livres'}`, `Leading ${fmtPt(g.baseline, u)} · ${d.spec.baselineLock ? 'fields locked to the leading' : 'free fields'}`),
+    elements: tx(`${d.blocks.length} elementos · ${d.blocks.filter((b) => b.kind === 'image').length} imagens`, `${d.blocks.length} elements · ${d.blocks.filter((b) => b.kind === 'image').length} images`),
   };
 
   return (
     <div className="build-caption" role="status" aria-live="polite">
       <div className="build-head">
         <strong>{info.title}</strong>
-        <button className="icon-btn" onClick={() => s.set({ buildStep: null, buildPlaying: false })} title="Fechar (Esc)">
+        <button className="icon-btn" onClick={() => s.set({ buildStep: null, buildPlaying: false })} title={tx('Fechar (Esc)', 'Close (Esc)')}>
           <Icon name="close" size={16} />
         </button>
       </div>
