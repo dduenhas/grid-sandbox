@@ -84,8 +84,7 @@ React 18, TypeScript, Vite, Zustand e Framer Motion. A prancheta é desenhada em
 - `src/export`: SVG, PNG, JSON, CSS e fichas técnicas
 
 ## Website para utilizar a ferramenta
-Grid Sandbox
-[Grid Sandbox](https://gridsandbox.vercel.app/)
+
 [![Abrir Grid Sandbox](https://img.shields.io/badge/Abrir-Grid_Sandbox-blue?style=for-the-badge)](https://gridsandbox.vercel.app/)
 
 ## Autor
