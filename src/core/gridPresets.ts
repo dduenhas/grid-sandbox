@@ -37,6 +37,20 @@ function progressiveMargins(p: PageSize): Margins {
   return { inner: 2 * u, top: 3 * u * (p.h / p.w > 1 ? 1 : 0.8), outer: 4 * u, bottom: 6 * u * (p.h / p.w > 1 ? 1 : 0.7) };
 }
 
+/** Economical progression 2 : 3 : 4 : 6 used by trade books (text area around 60%). */
+function tradeMargins(p: PageSize): Margins {
+  if (p.medium === 'screen') return swissMargins(p);
+  const u = Math.min(p.w, p.h * 0.7) / 26;
+  return { inner: 2 * u, top: 3 * u, outer: 4 * u, bottom: 6 * u };
+}
+
+/** William Morris: each margin 20% larger than the previous (inner, top, outer, bottom). */
+function morrisMargins(p: PageSize): Margins {
+  if (p.medium === 'screen') return swissMargins(p);
+  const u = Math.min(p.w, p.h * 0.7) * 0.085;
+  return { inner: u, top: u * 1.2, outer: u * 1.44, bottom: u * 1.728 };
+}
+
 /** Van de Graaf canon: inner 1/9 of width, top 1/9 of height, outer and bottom twice that. */
 function canonMargins(p: PageSize): Margins {
   if (p.medium === 'screen') {
@@ -94,6 +108,34 @@ export const GRID_TYPES: GridType[] = [
       return base(p, 'manuscript', { cols: 1, rows: landscape(p) ? 5 : 8, margins, guides: ['canon'] });
     },
     suit: (p) => (p.medium === 'print' ? (landscape(p) ? 0.45 : 0.8) : 0.35),
+  },
+  {
+    id: 'book-trade',
+    name: 'Livro comercial (2:3:4:6 econômica)',
+    short: 'Livro',
+    family: 'manuscrito',
+    build: (p) => base(p, 'book-trade', { cols: 1, rows: landscape(p) ? 5 : 8, margins: tradeMargins(p) }),
+    suit: (p) => (p.medium === 'print' ? (landscape(p) ? 0.4 : 0.74) : 0.3),
+  },
+  {
+    id: 'book-morris',
+    name: 'Margens de Morris (+20% a cada margem)',
+    short: 'Morris',
+    family: 'manuscrito',
+    build: (p) => base(p, 'book-morris', { cols: 1, rows: landscape(p) ? 5 : 8, margins: morrisMargins(p) }),
+    suit: (p) => (p.medium === 'print' ? (landscape(p) ? 0.35 : 0.6) : 0.25),
+  },
+  {
+    id: 'book-2col',
+    name: 'Livro de referência em 2 colunas',
+    short: 'Ref. 2 col',
+    family: 'manuscrito',
+    build: (p) => {
+      const margins = tradeMargins(p);
+      const spec = base(p, 'book-2col', { cols: 2, rows: landscape(p) ? 5 : 8, margins });
+      return { ...spec, gutterX: p.medium === 'print' ? p.leading * 1.5 : spec.gutterX };
+    },
+    suit: (p) => (p.medium === 'print' ? (shortSide(p) >= 150 ? 0.55 : 0.35) : 0.25),
   },
   {
     id: 'manuscript-notes',
@@ -277,7 +319,7 @@ export interface GridPreset {
 
 /**
  * All grid presets for a page, ordered by suitability. `preferred` (from the chosen design school)
- * boosts types that belong to that school's tradition. Always returns every type (18 ≥ 10).
+ * boosts types that belong to that school's tradition. Always returns every type (21 ≥ 10).
  */
 export function gridPresets(p: PageSize, preferred: GridTypeId[] = []): GridPreset[] {
   return GRID_TYPES.map((t) => {

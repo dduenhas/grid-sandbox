@@ -1042,6 +1042,77 @@ textarea.input {
   font-size: 13px;
   margin: 0;
 }
+.book-specimen {
+  padding: 20px 18px;
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+  margin: 8px 0;
+  font-size: 13.5px;
+  hyphens: auto;
+}
+.book-specimen p {
+  margin: 0;
+}
+.book-specimen .dropcap {
+  float: left;
+  line-height: 0.8;
+  margin: 0.08em 0.12em 0 0;
+}
+.book-specimen-note {
+  font-family: var(--mono);
+  font-size: 10.5px !important;
+  opacity: 0.6;
+  margin-top: 14px !important;
+  text-align: left;
+}
+.recipe,
+.book-glossary {
+  margin: 0;
+}
+.recipe > div {
+  padding: 8px 0;
+  border-top: 1px solid var(--rule);
+}
+.recipe dt {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.recipe dd {
+  margin: 2px 0 0;
+  font-size: 13px;
+}
+.masterpieces {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.masterpieces li {
+  padding: 8px 0;
+  border-top: 1px solid var(--rule);
+}
+.masterpieces p {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+}
+.field-label {
+  display: grid;
+  gap: 4px;
+  margin-top: 10px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.principles li {
+  margin-bottom: 8px;
+}
+.principles .src {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  font-style: italic;
+}
 .refs {
   padding-left: 18px;
   margin: 0;

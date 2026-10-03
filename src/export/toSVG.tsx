@@ -21,6 +21,7 @@ export function toSVG(d: Derived, o: SvgOptions): string {
       grid={d.grid}
       blocks={d.blocks}
       school={d.school}
+      furniture={d.furniture}
       overlays={{ ...o.overlays, tracing: false, dimensions: false }}
       cutout={false}
       gridInk={o.gridInk}

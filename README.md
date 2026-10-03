@@ -26,12 +26,37 @@ O projeto tem dois públicos ao mesmo tempo: quem está **aprendendo** diagrama�
 ## Recursos
 
 1. **Formatos.** 18 formatos de impressão e tela (A4, A3, livro, cartaz, desktop, mobile, Instagram e outros), em retrato ou paisagem e com página dupla.
-2. **Grids.** 18 tipos, ordenados pela adequação ao formato: colunas, modulares, Müller-Brockmann com linha de base, cânone de Van de Graaf, margens progressivas de Tschichold, Gerstner 58, áurea, terços, Fibonacci, 8pt, diagonal construtivista e outros.
-3. **Escolas.** 12 escolas: Suíça, Bauhaus, Construtivismo, De Stijl, Nova Tipografia, Clássica, Vignelli, New Wave, Japonesa, Editorial, Web/UI e Brutalismo.
-4. **Combinações.** ◀ ▶ geram diagramações no grid escolhido, com nota e análise de espaço branco, alinhamento, hierarquia, equilíbrio e medida do texto.
-5. **Modo manual.** Arraste e redimensione blocos com encaixe no grid; fixe blocos para mantê-los nas próximas combinações; desfaça e refaça.
-6. **Aprender.** A aba Teoria explica o grid ativo com os números ao vivo, e o botão Construir anima o grid etapa por etapa.
-7. **Exportar.** SVG em camadas, PNG (até 300 dpi, com fontes embutidas), JSON do projeto, CSS Grid e ficha técnica.
+2. **Grids.** 21 tipos, ordenados pela adequação ao formato: colunas, modulares, Müller-Brockmann com linha de base, cânone de Van de Graaf, margens progressivas de Tschichold, livro comercial 2:3:4:6, margens de Morris, Gerstner 58, áurea, terços, Fibonacci, 8pt, diagonal construtivista e outros.
+3. **Escolas.** 11 escolas e movimentos (Suíça, Bauhaus, Construtivismo, De Stijl, Nova Tipografia, Vignelli, New Wave, Japonesa, Editorial, Web/UI e Brutalismo) e 6 receitas de livro.
+4. **Livros.** Diagramação de texto corrido, com a teoria por trás de cada escolha (veja abaixo).
+5. **Combinações.** ◀ ▶ geram diagramações no grid escolhido, com nota e análise de espaço branco, alinhamento, hierarquia, equilíbrio e medida do texto.
+6. **Modo manual.** Arraste e redimensione blocos com encaixe no grid; fixe blocos para mantê-los nas próximas combinações; desfaça e refaça.
+7. **Aprender.** A aba Teoria explica o grid ativo com os números ao vivo, e o botão Construir anima o grid etapa por etapa.
+8. **Exportar.** SVG em camadas, PNG (até 300 dpi, com fontes embutidas), JSON do projeto, CSS Grid e ficha técnica (com estilos de parágrafo nos livros).
+
+## Diagramação de livros
+
+O livro de texto corrido tem regras próprias, e as receitas do grupo **Livro** as aplicam de ponta a ponta:
+
+![Private press: fim de capítulo no verso e abertura no recto, com margens de Morris, capitular de 4 linhas e caldeirões; à direita, a receita e o espécime da hierarquia](docs/livro.png)
+
+- **A página dupla é a unidade** (Morris, *The Ideal Book*). Margens progressivas, interna < superior < externa < inferior: cânone de Van de Graaf (2:3:4:6), livro comercial econômico e a progressão de 20% de Morris.
+- **Encadernação.** Costurada, brochura colada ou wire-o somam 2, 5 ou 10 mm à margem interna, e a análise julga as margens que sobram visíveis.
+- **Medida, corpo e entrelinha.** 60–70 caracteres por linha e entrelinha de 120–145% (Bringhurst). Cada receita traz seu corpo e sua entrelinha.
+- **Registro.** Intertítulos, quebras, rebaixos e figuras ocupam linhas inteiras, e as linhas coincidem nas duas páginas.
+- **Hierarquia.** Até três níveis de intertítulo, cada um mudando uma só variável, com mais espaço antes que depois. Título corrido (run-in) no terceiro nível.
+- **Combinação de fontes.** Uma família (Penguin, renascentista, private press), duas (Hochuli: serifada + sem serifa) ou três estilos com papéis fixos (literatura contemporânea, técnico).
+- **Páginas típicas.** Abertura de capítulo com rebaixo, capitular e versaletes; intertítulos; texto corrido com quebra de seção; figura; notas de rodapé ou laterais (Tufte); sumário; folha de rosto com colofão; parte; dedicatória e epígrafe. Cabeços e fólios seguem recto e verso e somem nas aberturas.
+- **Obras-primas.** Cada receita cita livros que fizeram escola na hierarquia, de Aldo Manuzio e da Doves Bible às Penguin Composition Rules e aos livros de Tufte.
+
+| Receita | Fontes | Margens | Parágrafo e abertura |
+| --- | --- | --- | --- |
+| Livro renascentista | EB Garamond (1 família) | Van de Graaf | recuo, capitular de 3 linhas, versaletes |
+| Clássico moderno (Penguin) | Crimson Pro (1 família) | 2:3:4:6 econômica | recuo, versaletes sem capitular |
+| Private press | Alegreya (1 família) | Morris | caldeirão ¶, capitular de 4 linhas |
+| Livro assimétrico suíço | Literata + Instrument Sans | com coluna de notas | alinhado à esquerda, notas laterais |
+| Literatura contemporânea | Fraunces + Newsreader + Inter | 2:3:4:6 econômica | número gigante, título itálico |
+| Técnico e didático | Source Serif + Source Sans + Source Code | com coluna de notas | espaço entre parágrafos, títulos numerados |
 
 ## Rodar localmente
 

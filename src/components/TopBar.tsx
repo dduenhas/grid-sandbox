@@ -37,11 +37,20 @@ export function TopBar() {
           {s.orientation === 'portrait' ? 'Retrato' : 'Paisagem'}
         </button>
         <select className="select compact hide-sm" value={s.schoolId} onChange={(e) => s.setSchool(e.target.value, true)} aria-label="Escola">
-          {SCHOOLS.map((sc) => (
-            <option key={sc.id} value={sc.id}>
-              {sc.name}
-            </option>
-          ))}
+          <optgroup label="Escolas e movimentos">
+            {SCHOOLS.filter((sc) => !sc.book).map((sc) => (
+              <option key={sc.id} value={sc.id}>
+                {sc.name}
+              </option>
+            ))}
+          </optgroup>
+          <optgroup label="Livro: diagramação de texto">
+            {SCHOOLS.filter((sc) => sc.book).map((sc) => (
+              <option key={sc.id} value={sc.id}>
+                {sc.name}
+              </option>
+            ))}
+          </optgroup>
         </select>
         <div className="segmented hide-xs" role="radiogroup" aria-label="Modo">
           <button className={s.mode === 'auto' ? 'on' : ''} onClick={() => s.set({ mode: 'auto' })} title="Automático">

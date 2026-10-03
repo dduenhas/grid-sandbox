@@ -2,9 +2,12 @@ import type { ArchetypeId, School } from '../content/schools';
 import { CAPTIONS, LABEL_IMAGE, SUBHEADS, bodyText, type PlaceholderLang } from '../content/placeholders';
 import { chance, hashString, mulberry32, pick, range, type Rng } from './rng';
 import { spanRect, type Grid } from './gridEngine';
-import { bodyFromLeading, measureChars } from './typeScale';
+import { measureChars } from './typeScale';
+import { bookLayout } from './bookLayout';
+import { PAGE_TYPES, isBookArchetype } from '../content/book';
+import { bodySizeFor, scoreBook } from './bookScore';
 
-export type BlockKind = 'headline' | 'kicker' | 'subhead' | 'body' | 'image' | 'caption' | 'quote' | 'folio' | 'logo' | 'shape';
+export type BlockKind = 'headline' | 'kicker' | 'subhead' | 'body' | 'image' | 'caption' | 'quote' | 'folio' | 'logo' | 'shape' | 'chapter' | 'epigraph' | 'toc' | 'notes';
 export type Tone = 'ink' | 'accent' | 'accent2' | 'accent3' | 'image';
 export type ShapeKind = 'circle' | 'square' | 'triangle' | 'wedge';
 
@@ -24,9 +27,25 @@ export interface Block {
   /** Shapes in overlap-friendly schools sit behind and ignore occupancy. */
   behind?: boolean;
   pinned?: boolean;
+  /** Book text: opens with a drop cap. */
+  dropcap?: boolean;
+  /** Book text: continues from the previous page (first line not indented). */
+  cont?: boolean;
+}
+
+/** Running heads and folios printed in the margins of a book page. */
+export interface PageFurniture {
+  role: 'text' | 'opening' | 'display' | 'blank';
+  runhead: string;
+  folio: number;
+  recto: boolean;
 }
 
 export const BLOCK_LABEL: Record<BlockKind, string> = {
+  chapter: 'Abertura de capítulo',
+  epigraph: 'Epígrafe',
+  toc: 'Sumário',
+  notes: 'Notas',
   headline: 'Título',
   kicker: 'Chapéu',
   subhead: 'Linha fina',
@@ -56,6 +75,8 @@ export interface Archetype {
   name: string;
   description: string;
   reqs: (s: School) => Req[];
+  /** Book page types are laid out by `bookLayout`, not by the requirement solver. */
+  book?: boolean;
 }
 
 const small: [number, number] = [0.04, 0.09];
@@ -191,6 +212,7 @@ export const ARCHETYPES: Archetype[] = [
       { kind: 'kicker', w: [0.2, 0.4], h: small, at: 'top-right', p: 0.7 },
     ],
   },
+  ...PAGE_TYPES.map((t) => ({ id: t.id, name: t.name, description: t.description, reqs: () => [], book: true })),
 ];
 
 export const getArchetype = (id: string) => ARCHETYPES.find((a) => a.id === id) ?? ARCHETYPES[0];
@@ -205,6 +227,10 @@ export interface GenOptions {
   archetype: ArchetypeId;
   lang: PlaceholderLang;
   pinned?: Block[];
+  /** Column widths in document units (lets book pages find the narrow notes column). */
+  colWidths?: number[];
+  /** Text lines per row field, for sizing book elements. */
+  linesPerRow?: number;
 }
 
 const TEXT_KINDS = new Set<BlockKind>(['headline', 'kicker', 'subhead', 'body', 'caption', 'quote']);
@@ -460,9 +486,11 @@ export interface Layout {
   blocks: Block[];
   archetype: ArchetypeId;
   seed: number;
+  furniture?: PageFurniture[];
 }
 
 export function generateLayout(o: GenOptions): Layout {
+  if (isBookArchetype(o.archetype)) return bookLayout(o, o.archetype);
   const rng = mulberry32(o.seed);
   const occ = new Occupancy(o.cols, o.rows);
   const placed: Block[] = [];
@@ -503,9 +531,10 @@ export function generateLayout(o: GenOptions): Layout {
   return { blocks: placed, archetype: arch.id, seed: o.seed };
 }
 
-/** Archetype order for a school: its own favorites first, then the rest. */
+/** Archetype order for a school: its own favorites first, then the rest of the same family (book pages or free layouts). */
 export function archetypeCycle(s: School): ArchetypeId[] {
-  const rest = ARCHETYPES.map((a) => a.id).filter((id) => !s.archetypes.includes(id));
+  const book = !!s.book;
+  const rest = ARCHETYPES.filter((a) => !!a.book === book && !s.archetypes.includes(a.id)).map((a) => a.id);
   return [...s.archetypes, ...rest];
 }
 
@@ -541,7 +570,8 @@ export interface Score {
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 
-export function scoreLayout(blocks: Block[], grid: Grid, school: School): Score {
+export function scoreLayout(blocks: Block[], grid: Grid, school: School, archetype?: ArchetypeId, bindingMm = 0): Score {
+  if (school.book || (archetype && isBookArchetype(archetype))) return scoreBook(blocks, grid, school, bindingMm);
   const C = grid.cols.length;
   const R = grid.rows.length;
   const occ = new Occupancy(C, R);
@@ -577,7 +607,7 @@ export function scoreLayout(blocks: Block[], grid: Grid, school: School): Score 
   const offset = Math.hypot(cx - 0.5, cy - 0.5);
   const balScore = clamp01(1 - Math.abs(offset - school.balanceOffset) * 3);
 
-  const bodySize = bodyFromLeading(grid.baseline);
+  const bodySize = bodySizeFor(grid.baseline, school);
   const bodies = blocks.filter((b) => b.kind === 'body');
   const measures = bodies.map((b) => measureChars(spanRect(grid, b.c, b.r, b.cs, b.rs).w, bodySize));
   const goodM = measures.filter((m) => m >= 40 && m <= 80).length;

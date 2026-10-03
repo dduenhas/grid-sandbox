@@ -44,6 +44,10 @@ export function HelpModal() {
             O painel <strong>Teoria</strong> explica o grid escolhido e mostra os números ao vivo. O botão <strong>Construir</strong> monta o grid camada por camada. O painel{' '}
             <strong>Diagramação</strong> avalia a variação (espaço branco, alinhamento, hierarquia, equilíbrio e medida) e diz o que melhorar.
           </p>
+          <h4>Livros</h4>
+          <p>
+            No grupo <strong>Livro</strong> do seletor de escolas há seis receitas de miolo, com uma, duas ou três fontes. “Exemplos” abre o Livro 16×23 em página dupla com acréscimo de encadernação, e ◀ ▶ percorrem as páginas típicas: abertura de capítulo, intertítulos, texto corrido, figura, notas, sumário, folha de rosto, parte e epígrafe. Cabeços e fólios seguem recto e verso.
+          </p>
         </div>
         <div>
           <h4>Atalhos</h4>

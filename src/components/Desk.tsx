@@ -164,6 +164,7 @@ export function Desk() {
                   grid={d.grid}
                   blocks={d.blocks}
                   school={d.school}
+                  furniture={d.furniture}
                   overlays={s.overlays}
                   cutout={s.cutout}
                   gridInk={s.gridInk}

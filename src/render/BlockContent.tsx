@@ -4,6 +4,7 @@ import type { Block, Tone } from '../core/layoutGenerator';
 import { fontStack, type School } from '../content/schools';
 import { applyCase, fitText, justifyWords, layoutParagraphs, measure, wrap, type FontRef } from './text';
 import { snapDown } from '../core/typeScale';
+import { BOOK_KINDS, BookBlock } from './BookContent';
 
 export interface RenderCtx {
   school: School;
@@ -50,6 +51,7 @@ interface Props {
 
 export function BlockContent({ block: b, w, h, ctx }: Props) {
   const s = ctx.school;
+  if (BOOK_KINDS.has(b.kind) || (s.book && b.kind !== 'image' && b.kind !== 'shape' && b.kind !== 'logo')) return <BookBlock block={b} w={w} h={h} ctx={ctx} />;
   const pal = s.palette;
   const color = toneColor(b.tone, s);
   const display: FontRef = { family: s.display.family, weight: s.display.weight };

@@ -1,5 +1,8 @@
 import type { Derived } from '../store/useStore';
-import { bodyFromLeading, getRatio, modularScale } from '../core/typeScale';
+import { getRatio, modularScale } from '../core/typeScale';
+import { bodySizeFor } from '../core/bookScore';
+import { roleFont } from '../content/bookOf';
+import type { CaseStyle, FontRole, HeadStyle } from '../content/book';
 import { docToPt, round } from '../core/units';
 
 const fr = (ratios: number[] | undefined, n: number) => (ratios && ratios.length === n ? ratios.map((r) => `${round(r, 3)}fr`).join(' ') : `repeat(${n}, 1fr)`);
@@ -9,7 +12,7 @@ export function toCSS(d: Derived): string {
   const g = d.grid;
   const u = d.page.unit;
   const L = (v: number) => (u === 'mm' ? `${round(v, 2)}mm` : `${round(v, 0)}px`);
-  const body = bodyFromLeading(g.baseline);
+  const body = bodySizeFor(g.baseline, d.school);
   const scale = modularScale(body, getRatio(d.school.scale).ratio, 1, 6);
   const sp = d.spec;
   const rowsTpl = sp.baselineLock ? g.rows.map((r) => L(r.size)).join(' ') : fr(sp.rowRatios, g.rows.length);
@@ -67,6 +70,34 @@ ${blocks}
 `;
 }
 
+/** Paragraph styles of a book school, ready to become InDesign paragraph styles. */
+function bookSpecs(d: Derived): string {
+  const st = d.school.book!;
+  const u = d.page.unit;
+  const body = bodySizeFor(d.grid.baseline, d.school);
+  const P = (v: number) => `${round(docToPt(v, u), 1)} pt`;
+  const lead = P(d.grid.baseline);
+  const fam = (role: FontRole) => roleFont(d.school, role).family;
+  const cs = (c: CaseStyle) => (c === 'upper' ? ', maiúsculas' : c === 'smallcaps' ? ', versaletes' : '');
+  const head = (name: string, h: HeadStyle) =>
+    `  ${name}: ${fam(h.role)}${h.italic ? ' itálico' : ''}${h.weight ? ` ${h.weight}` : ''} ${P(body * h.scale)}${cs(h.case)}${h.tracking ? `, tracking ${Math.round(h.tracking * 1000)}` : ''}, ${h.align === 'center' ? 'centralizado' : 'à esquerda'}${h.runIn ? ', corrido no parágrafo' : `, ${h.before} linha(s) antes e ${h.after} depois`}`;
+  const ch = st.chapter;
+  return `
+ESTILOS DE PARÁGRAFO (livro)
+  Texto: ${fam('text')} ${P(body)} / ${lead}, ${st.justify ? 'justificado' : 'alinhado à esquerda'}, ${st.paragraph === 'indent' ? 'recuo de 1 eme' : st.paragraph === 'space' ? 'espaço de 1 linha entre parágrafos' : 'parágrafos corridos com ¶'}, alinhado à grade de base
+  Texto primeiro: igual ao Texto, sem recuo${st.leadIn === 'smallcaps' ? ', 3 primeiras palavras em versaletes' : ''}${st.dropCap ? `, capitular de ${st.dropCap.lines} linhas` : ''}
+  Capítulo número: ${fam(ch.numberRole)} ${P(body * ch.numberScale)}${cs(ch.numberCase)}${ch.label ? `, “${ch.label} ”` : ''}, numeração ${ch.number === 'roman' ? 'romana' : ch.number === 'word' ? 'por extenso' : 'arábica'}
+  Capítulo título: ${fam(ch.titleRole)}${ch.titleItalic ? ' itálico' : ''} ${P(body * ch.titleScale)}${cs(ch.titleCase)}, rebaixo de ${Math.round(ch.sink * 100)}% da mancha
+${head('Título A', st.heads[0])}
+${head('Título B', st.heads[1])}
+${head('Título C', st.heads[2])}
+  Cabeço: ${st.runhead.verso === 'none' ? 'sem cabeço' : `${fam(st.runhead.role)}${cs(st.runhead.case)}, verso = ${st.runhead.verso === 'book' ? 'título do livro' : 'autor'}, recto = ${st.runhead.recto === 'chapter' ? 'título do capítulo' : st.runhead.recto === 'book' ? 'título do livro' : '—'}`}
+  Fólio: ${fam(st.folio.role)}, ${st.folio.position === 'foot-center' ? 'pé, centralizado' : st.folio.position === 'foot-outer' ? 'pé, canto externo' : 'alto, canto externo'}${st.folio.dropOnOpening ? '; nas aberturas desce ao pé' : '; omitido nas aberturas'}
+  Notas: ${st.notes === 'side' ? 'laterais, na coluna de notas' : 'de rodapé, com filete curto'}
+  Encadernação: ${d.bindingMm ? `+${d.bindingMm} mm já somados à margem interna` : 'sem acréscimo'}
+`;
+}
+
 /** Step-by-step settings to rebuild the grid in InDesign, Illustrator, Photoshop and Figma. */
 export function toSpecs(d: Derived): string {
   const g = d.grid;
@@ -85,7 +116,7 @@ COLUNAS  ${d.spec.cols} · calha ${L(g.gutterX)}${d.spec.colRatios ? ` · propor
 LINHAS   ${rows} · calha ${L(g.gutterY)}
 ENTRELINHA (baseline)  ${P(g.baseline)} · início em ${L(g.baselineOrigin)} do topo
 TIPOGRAFIA  Títulos: ${d.school.display.family} ${d.school.display.weight} · Texto: ${d.school.text.family} ${d.school.text.weight}
-
+${d.school.book ? bookSpecs(d) : ''}
 INDESIGN
   1. Arquivo > Novo documento: ${L(d.page.w)} × ${L(d.page.h)}${g.spread ? ', páginas opostas' : ''}.
   2. Margens e colunas: margens acima; colunas ${d.spec.cols}, medianiz ${L(g.gutterX)}.

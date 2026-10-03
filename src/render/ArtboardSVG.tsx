@@ -1,9 +1,11 @@
 import { forwardRef, type PointerEvent as RPE, type Ref } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { spanRect, type Grid } from '../core/gridEngine';
-import type { Block } from '../core/layoutGenerator';
+import type { Block, PageFurniture } from '../core/layoutGenerator';
 import type { School } from '../content/schools';
-import { getRatio, doubleStrandScale, bodyFromLeading } from '../core/typeScale';
+import { getRatio, doubleStrandScale } from '../core/typeScale';
+import { bodySizeFor } from '../core/bookScore';
+import { BookFurniture } from './BookContent';
 import type { GridInk, Overlays } from '../store/useStore';
 import { BlockContent, type RenderCtx } from './BlockContent';
 import { BUILD_INDEX, Dimensions, GridStructure, Guides } from './GridLayer';
@@ -16,6 +18,7 @@ export interface ArtboardProps {
   grid: Grid;
   blocks: Block[];
   school: School;
+  furniture?: PageFurniture[];
   overlays: Overlays;
   cutout: boolean;
   gridInk: GridInk;
@@ -42,7 +45,7 @@ export const ArtboardSVG = forwardRef<SVGSVGElement, ArtboardProps>(function Art
   const hair = exportMode ? (unit === 'mm' ? 0.1 : 1) : 1 / (p.pxPerUnit ?? 1);
   const pad = exportMode ? 0 : Math.max(W, H) * 0.05;
   const ink = INKS[p.gridInk];
-  const bodySize = bodyFromLeading(grid.baseline > 0 ? grid.baseline : grid.page.leading);
+  const bodySize = bodySizeFor(grid.baseline > 0 ? grid.baseline : grid.page.leading, school);
   const ratio = getRatio(school.scale).ratio;
   const ctx: RenderCtx = {
     school,
@@ -123,6 +126,7 @@ export const ArtboardSVG = forwardRef<SVGSVGElement, ArtboardProps>(function Art
               </AnimatePresence>
             )}
           </g>
+          {p.furniture && showElements && <BookFurniture grid={grid} school={school} furniture={p.furniture} bodySize={bodySize} />}
         </g>
         {showGrid && <Guides grid={grid} overlays={overlays} ink={ink} hair={hair} buildStep={buildStep} />}
       </g>

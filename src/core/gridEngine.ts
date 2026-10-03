@@ -3,6 +3,9 @@ import type { PageSize } from './formats';
 export type GridTypeId =
   | 'manuscript'
   | 'manuscript-notes'
+  | 'book-trade'
+  | 'book-morris'
+  | 'book-2col'
   | 'col-2'
   | 'col-3'
   | 'col-4'

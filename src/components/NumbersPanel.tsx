@@ -1,6 +1,7 @@
 import { useDerived } from '../store/useStore';
 import { Section } from './ui';
-import { CLASSIC_SCALE_PT, bodyFromLeading, getRatio, measureChars, modularScale } from '../core/typeScale';
+import { CLASSIC_SCALE_PT, getRatio, measureChars, modularScale } from '../core/typeScale';
+import { bodySizeFor } from '../core/bookScore';
 import { docToPt, fmt, round } from '../core/units';
 import { spanRect } from '../core/gridEngine';
 
@@ -8,7 +9,7 @@ export function NumbersPanel() {
   const d = useDerived();
   const g = d.grid;
   const u = d.page.unit;
-  const body = bodyFromLeading(g.baseline);
+  const body = bodySizeFor(g.baseline, d.school);
   const ratio = getRatio(d.school.scale);
   const scale = modularScale(body, ratio.ratio, 1, 7);
   const lines = g.rows.map((r) => round(r.size / g.baseline, 2));

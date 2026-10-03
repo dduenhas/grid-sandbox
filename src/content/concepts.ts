@@ -40,6 +40,49 @@ export const GRID_CONCEPTS: Record<GridTypeId, GridConcept> = {
     ],
     mistakes: ['Notas com entrelinha diferente, quebrando o alinhamento', 'Usar a coluna estreita para texto corrido longo'],
   },
+  'book-trade': {
+    title: 'Livro comercial (progressão 2:3:4:6 econômica)',
+    origin: 'A progressão interna : superior : externa : inferior de 2 : 3 : 4 : 6 vem dos manuscritos medidos por Tschichold. Os livros comerciais do século XX (Penguin, Insel) mantiveram a proporção e reduziram as margens para baratear o papel.',
+    concept:
+      'Uma coluna com margens progressivas menores que as do cânone: a mancha ocupa cerca de 60% da página em vez de 44%. A margem interna continua a menor, porque se soma à da página vizinha na medianiz, e a inferior continua a maior, para a mancha não “cair”.',
+    whenToUse: ['Romances, ensaios e biografias', 'Livros de bolso e edições econômicas', 'Qualquer livro de texto corrido com tiragem comercial'],
+    avoid: ['Livros de arte e edições de luxo, que pedem margens generosas', 'Brochura colada sem acréscimo de lombada: o texto afunda na dobra'],
+    strategies: [
+      'Ative a encadernação em Formato: a brochura colada soma 3 a 6 mm à margem interna',
+      'Ajuste o corpo para ter 60–70 caracteres por linha, não a mancha',
+      'Mantenha a entrelinha travada: aberturas, intertítulos e quebras em linhas inteiras',
+      'Cabeços e fólios ficam nas margens, fora da mancha',
+    ],
+    mistakes: ['Margem interna igual à externa: na página dupla o texto parece afastado da dobra', 'Mancha grande demais para o formato: linhas longas e cansativas'],
+  },
+  'book-morris': {
+    title: 'Margens de Morris (+20% a cada margem)',
+    origin: 'William Morris, na Kelmscott Press (1891–1898), descreveu em The Ideal Book que a unidade do livro é a página dupla e que cada margem deve crescer cerca de 20% em relação à anterior: interna, superior, externa e inferior.',
+    concept:
+      'As margens seguem a razão 1 : 1,2 : 1,44 : 1,73. O resultado é uma mancha grande, densa e escura, emoldurada por margens que crescem de dentro para fora e de cima para baixo. A página dupla forma um bloco único, com a medianiz estreita costurando as duas manchas.',
+    whenToUse: ['Edições artesanais e de bibliófilo', 'Livros com tipografia pesada e iniciais decoradas', 'Estudos de proporção e história do livro'],
+    avoid: ['Textos leves e arejados, que pedem mais branco', 'Brochura colada sem acréscimo: a margem interna de Morris é estreita'],
+    strategies: [
+      'Combine com entrelinha apertada e romanas de traço pesado para uma página escura e uniforme',
+      'Use a cor (vermelho) para iniciais e títulos em vez de mudar tamanhos',
+      'Avalie sempre a página dupla: as duas manchas devem parecer um único bloco',
+    ],
+    mistakes: ['Usar fontes finas e muita entrelinha: a mancha fica cinza e as margens perdem o sentido', 'Esquecer a encadernação: a interna de Morris foi pensada para cadernos costurados'],
+  },
+  'book-2col': {
+    title: 'Livro de referência em 2 colunas',
+    origin: 'A Bíblia de Gutenberg (c. 1455) já usava duas colunas. Dicionários, enciclopédias e obras de referência mantêm o modelo para comportar muito texto em corpo pequeno sem linhas longas.',
+    concept:
+      'Duas colunas iguais com calha larga, de 1,5 a 2 linhas, para que cada coluna seja lida como unidade. O corpo é menor e a medida fica em 35–45 caracteres, adequada à consulta rápida.',
+    whenToUse: ['Dicionários, enciclopédias e bíblias', 'Antologias e obras completas em corpo pequeno', 'Livros técnicos com muitas entradas curtas'],
+    avoid: ['Romances e ensaios de leitura contínua: a troca de coluna interrompe a leitura', 'Formatos estreitos, onde as colunas ficam com menos de 30 caracteres'],
+    strategies: [
+      'Calha de pelo menos uma entrelinha e meia; um filete fino na calha é opcional',
+      'As duas colunas devem terminar na mesma linha (balanceamento) no fim de seção',
+      'Títulos de entrada em negrito ou versaletes, corridos no início do parágrafo',
+    ],
+    mistakes: ['Calha estreita: as colunas se fundem', 'Colunas com linhas fora de registro entre si'],
+  },
   'col-2': {
     title: 'Grid de 2 colunas',
     origin: 'Bíblias e jornais antigos; permanece padrão em publicações científicas.',

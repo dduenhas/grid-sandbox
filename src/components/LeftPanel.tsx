@@ -5,6 +5,7 @@ import type { GridPreset } from '../core/gridPresets';
 import { useDerived, useStore } from '../store/useStore';
 import { Section, Segmented, Slider, Toggle } from './ui';
 import { docToPt, ptToDoc } from '../core/units';
+import { BINDINGS, bindingOf, type BindingId } from '../content/book';
 
 export function LeftPanel() {
   return (
@@ -60,6 +61,22 @@ function FormatPicker() {
         />
         <Toggle label="Página dupla" checked={s.spread} onChange={(v) => s.set({ spread: v, selectedId: null })} />
       </div>
+      {d.page.medium === 'print' && (
+        <>
+          <label className="field-label">
+            Encadernação
+            <select className="select" value={s.binding} onChange={(e) => s.set({ binding: e.target.value as BindingId, selectedId: null })} aria-label="Encadernação">
+              {BINDINGS.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.name}
+                  {b.mm ? ` (+${b.mm} mm na interna)` : ''}
+                </option>
+              ))}
+            </select>
+          </label>
+          {s.binding !== 'none' && <p className="hint">{bindingOf(s.binding).note}</p>}
+        </>
+      )}
       <p className="hint mono">
         {Math.round(d.page.w * 10) / 10} × {Math.round(d.page.h * 10) / 10} {d.page.unit}
         {d.format.note ? ` · ${d.format.note}` : ''}

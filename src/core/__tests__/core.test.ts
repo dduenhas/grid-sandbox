@@ -82,15 +82,18 @@ describe('layout generator', () => {
                 cells.add(k);
               }
           }
-          expect(layout.blocks.some((b) => b.kind === 'headline')).toBe(true);
-          const score = scoreLayout(layout.blocks, grid, school);
+          // free layouts need a headline; book pages enter through the chapter head, the text or the title page
+          const entry = school.book ? ['headline', 'chapter', 'body', 'toc', 'epigraph'] : ['headline'];
+          expect(layout.blocks.some((b) => entry.includes(b.kind))).toBe(true);
+          const score = scoreLayout(layout.blocks, grid, school, layout.archetype);
           expect(score.total).toBeGreaterThanOrEqual(0);
           expect(score.total).toBeLessThanOrEqual(100);
         }
   });
 
   it('fills both pages of a spread', () => {
-    for (const school of SCHOOLS)
+    // book openings leave the verso blank on purpose
+    for (const school of SCHOOLS.filter((s) => !s.book))
       for (const preset of presets)
         for (let i = 0; i < 4; i++) {
           const grid = buildGrid(preset.spec, p, true);
@@ -118,6 +121,78 @@ describe('layout generator', () => {
       const l = generateLayout({ cols: 4, rows: 6, spineCol: 0, school: s, seed: 9, archetype: a.id, lang: 'pt', pinned });
       const h = l.blocks.find((b) => b.id === 'headline-1')!;
       expect(h).toMatchObject({ c: 0, r: 0, cs: 2, rs: 1, text: 'Fixo' });
+    }
+  });
+});
+
+describe('book pages', () => {
+  const book = FORMATS.find((f) => f.id === 'book')!;
+  const p = pageSize(book, 'portrait');
+  const bookSchools = SCHOOLS.filter((s) => s.book);
+  const bookTypes = ARCHETYPES.filter((a) => a.book);
+
+  it('there are book schools with one, two and three font roles', () => {
+    expect(bookSchools.length).toBeGreaterThanOrEqual(5);
+    const counts = new Set(bookSchools.map((s) => new Set([s.display.family, s.text.family, (s.para ?? s.text).family]).size));
+    expect([...counts].sort()).toEqual([1, 2, 3]);
+  });
+
+  it('cycles only book page types for book schools and only free layouts for the others', () => {
+    for (const s of SCHOOLS) {
+      const cyc = Array.from({ length: 30 }, (_, i) => variationArchetype(s, i));
+      for (const a of cyc) expect(!!ARCHETYPES.find((x) => x.id === a)!.book).toBe(!!s.book);
+    }
+  });
+
+  it('every book school lays out every page type on a spread without overlaps', () => {
+    for (const school of bookSchools)
+      for (const gt of school.preferredGrids) {
+        const preset = gridPresets(p, school.preferredGrids).find((g) => g.id === gt)!;
+        const grid = buildGrid(preset.spec, p, true);
+        const C = grid.cols.length;
+        const R = grid.rows.length;
+        for (const a of bookTypes)
+          for (let i = 0; i < 3; i++) {
+            const layout = generateLayout({
+              cols: C,
+              rows: R,
+              spineCol: grid.spineCol,
+              school,
+              seed: 100 + i,
+              archetype: a.id,
+              lang: 'pt',
+              colWidths: grid.cols.map((c) => c.size),
+              linesPerRow: Math.round(grid.rows[0].size / grid.baseline),
+            });
+            const cells = new Set<string>();
+            for (const b of layout.blocks) {
+              expect(b.c + b.cs).toBeLessThanOrEqual(C);
+              expect(b.r + b.rs).toBeLessThanOrEqual(R);
+              for (let y = b.r; y < b.r + b.rs; y++)
+                for (let x = b.c; x < b.c + b.cs; x++) {
+                  expect(cells.has(`${x},${y}`)).toBe(false);
+                  cells.add(`${x},${y}`);
+                }
+            }
+            expect(layout.blocks.length).toBeGreaterThan(0);
+            expect(layout.furniture).toHaveLength(2);
+            const [verso, recto] = layout.furniture!;
+            expect(verso.folio % 2).toBe(0);
+            expect(recto.folio % 2).toBe(1);
+            if (a.id === 'chapter') expect(recto.role).toBe('opening');
+            const score = scoreLayout(layout.blocks, grid, school, a.id, 5);
+            expect(score.total).toBeGreaterThanOrEqual(0);
+            expect(score.total).toBeLessThanOrEqual(100);
+          }
+      }
+  });
+
+  it('book margins progress inner < top < outer < bottom', () => {
+    for (const id of ['book-trade', 'book-morris'] as const) {
+      const m = gridPresets(p).find((g) => g.id === id)!.spec.margins;
+      expect(m.inner).toBeLessThan(m.top);
+      expect(m.top).toBeLessThan(m.outer);
+      expect(m.outer).toBeLessThan(m.bottom);
     }
   });
 });

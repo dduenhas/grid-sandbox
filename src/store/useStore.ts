@@ -13,6 +13,8 @@ import {
 } from '../core/layoutGenerator';
 import { SCHOOLS, getSchool, type ArchetypeId } from '../content/schools';
 import type { PlaceholderLang } from '../content/placeholders';
+import { bindingOf, type BindingId } from '../content/book';
+import { ptToDoc } from '../core/units';
 import { CAPTIONS, SUBHEADS, bodyText } from '../content/placeholders';
 
 export interface Overlays {
@@ -38,6 +40,8 @@ export interface State {
   orientation: Orientation;
   custom: CustomSize;
   spread: boolean;
+  /** Binding allowance added to the inner margin on print. */
+  binding: BindingId;
   schoolId: string;
   gridTypeId: GridTypeId | null;
   gridOverrides: Partial<GridSpec>;
@@ -111,6 +115,7 @@ const initial: State = {
   orientation: 'portrait',
   custom: { w: 200, h: 200, unit: 'mm' },
   spread: false,
+  binding: 'none',
   schoolId: 'swiss',
   gridTypeId: 'mod-4x6',
   gridOverrides: {},
@@ -142,21 +147,32 @@ const initial: State = {
   fontsVersion: 0,
 };
 
+const BOOK_DEFAULT_TEXT: Partial<Record<BlockKind, string>> = {
+  chapter: '1|A forma do livro',
+  epigraph: 'A tipografia existe para honrar o conteúdo.|Robert Bringhurst',
+  toc: '1|A forma do livro|9\n2|Margens e mancha|27\n3|A página dupla|45\n4|Hierarquia|63',
+  notes: '¹|Ver Tschichold, A forma do livro, 1975.\n²|Bringhurst, Elementos do estilo tipográfico, 2.1.2.',
+};
+
 /* ---------- Derived state (memoized on its inputs) ---------- */
 
 type DeriveInput = Pick<
   State,
-  'formatId' | 'orientation' | 'custom' | 'spread' | 'schoolId' | 'gridTypeId' | 'gridOverrides' | 'variation' | 'archetypeLock' | 'lang' | 'edits' | 'pinned'
+  'formatId' | 'orientation' | 'custom' | 'spread' | 'schoolId' | 'gridTypeId' | 'gridOverrides' | 'variation' | 'archetypeLock' | 'lang' | 'edits' | 'pinned' | 'binding'
 >;
 
 function computeDerived(s: DeriveInput) {
   const format = getFormat(s.formatId, s.custom);
-  const page = pageSize(format, s.orientation);
   const school = getSchool(s.schoolId);
+  const base = pageSize(format, s.orientation);
+  const print = base.medium === 'print';
+  // book schools set their own leading, scaled from the 16×23 cm reference (13 pt) to the format
+  const page = school.book && print ? { ...base, leading: ptToDoc((school.book.leadingPt * format.leadingPt) / 13, base.unit) } : base;
   const presets = gridPresets(page, school.preferredGrids);
   const preset = presets.find((p) => p.id === s.gridTypeId) ?? presets[0];
   const spec: GridSpec = { ...preset.spec, ...s.gridOverrides, type: preset.id };
-  const grid = buildGrid(spec, page, s.spread);
+  const bindingMm = print ? bindingOf(s.binding).mm : 0;
+  const grid = buildGrid(bindingMm ? { ...spec, margins: { ...spec.margins, inner: spec.margins.inner + bindingMm } } : spec, page, s.spread);
   const C = grid.cols.length;
   const R = grid.rows.length;
   const gridKey = `${format.id}:${s.orientation}:${preset.id}:${s.spread ? 2 : 1}:${C}x${R}`;
@@ -172,17 +188,19 @@ function computeDerived(s: DeriveInput) {
     archetype,
     lang: s.lang,
     pinned: s.pinned,
+    colWidths: grid.cols.map((c) => c.size),
+    linesPerRow: grid.baseline > 0 ? Math.max(1, Math.round(grid.rows[0].size / grid.baseline)) : 3,
   });
   const blocks = edited ?? generated.blocks;
-  const score = scoreLayout(blocks, grid, school);
-  return { format, page, school, presets, preset, spec, grid, gridKey, editKey, archetype, blocks, edited: !!edited, score };
+  const score = scoreLayout(blocks, grid, school, archetype, bindingMm);
+  return { format, page, school, presets, preset, spec, grid, gridKey, editKey, archetype, blocks, edited: !!edited, score, furniture: generated.furniture, bindingMm };
 }
 
 export type Derived = ReturnType<typeof computeDerived>;
 
 let lastIn: DeriveInput | null = null;
 let lastOut: Derived | null = null;
-const KEYS: (keyof DeriveInput)[] = ['formatId', 'orientation', 'custom', 'spread', 'schoolId', 'gridTypeId', 'gridOverrides', 'variation', 'archetypeLock', 'lang', 'edits', 'pinned'];
+const KEYS: (keyof DeriveInput)[] = ['formatId', 'orientation', 'custom', 'spread', 'schoolId', 'gridTypeId', 'gridOverrides', 'variation', 'archetypeLock', 'lang', 'edits', 'pinned', 'binding'];
 
 export function derive(s: DeriveInput): Derived {
   if (lastIn && lastOut && KEYS.every((k) => lastIn![k] === s[k])) return lastOut;
@@ -230,6 +248,13 @@ export const useStore = create<State & Actions>()(
             patch.gridOverrides = {};
             patch.variation = 0;
             patch.archetypeLock = null;
+            if (school.book) {
+              const cur = get();
+              if (!['book', 'a5'].includes(cur.formatId)) patch.formatId = 'book';
+              patch.orientation = 'portrait';
+              patch.spread = true;
+              if (cur.binding === 'none') patch.binding = 'perfect';
+            }
           }
           set(patch);
         },
@@ -268,6 +293,10 @@ export const useStore = create<State & Actions>()(
             image: [Math.max(1, Math.ceil(C / 2)), Math.max(1, Math.ceil(R / 3))],
             body: [Math.max(1, Math.ceil(C / 3)), Math.max(1, Math.ceil(R / 3))],
             shape: [Math.max(1, Math.ceil(C / 2)), Math.max(1, Math.ceil(R / 3))],
+            chapter: [C, Math.max(1, Math.ceil(R / 4))],
+            epigraph: [C, Math.max(1, Math.ceil(R / 6))],
+            toc: [C, Math.max(1, Math.ceil(R * 0.7))],
+            notes: [C, Math.max(1, Math.ceil(R / 6))],
           };
           const [cs, rs] = sizes[kind] ?? [Math.max(1, Math.ceil(C / 4)), 1];
           const text =
@@ -287,7 +316,7 @@ export const useStore = create<State & Actions>()(
                           ? '1'
                           : kind === 'image'
                             ? `Imagem ${n}`
-                            : '';
+                            : (BOOK_DEFAULT_TEXT[kind] ?? '');
           const block: Block = {
             id,
             kind,
@@ -386,6 +415,7 @@ export const useStore = create<State & Actions>()(
         orientation: s.orientation,
         custom: s.custom,
         spread: s.spread,
+        binding: s.binding,
         schoolId: s.schoolId,
         gridTypeId: s.gridTypeId,
         gridOverrides: s.gridOverrides,
@@ -412,6 +442,7 @@ export const PROJECT_KEYS = [
   'orientation',
   'custom',
   'spread',
+  'binding',
   'schoolId',
   'gridTypeId',
   'gridOverrides',

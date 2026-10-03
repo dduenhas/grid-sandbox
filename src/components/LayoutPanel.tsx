@@ -2,10 +2,11 @@ import { ARCHETYPES, BLOCK_LABEL, getArchetype, type BlockKind, type ShapeKind, 
 import { useDerived, useStore, type AutoTarget } from '../store/useStore';
 import type { PlaceholderLang } from '../content/placeholders';
 import type { ArchetypeId } from '../content/schools';
+import { MARKUP_HELP } from '../content/book';
 import { Icon } from './Icon';
 import { Section, Segmented, Slider, Toggle } from './ui';
 
-const ADDABLE: BlockKind[] = ['headline', 'kicker', 'subhead', 'body', 'image', 'caption', 'quote', 'folio', 'shape', 'logo'];
+const ADDABLE: BlockKind[] = ['headline', 'kicker', 'subhead', 'body', 'image', 'caption', 'quote', 'folio', 'shape', 'logo', 'chapter', 'epigraph', 'toc', 'notes'];
 
 export function LayoutPanel() {
   const s = useStore();
@@ -32,11 +33,20 @@ export function LayoutPanel() {
       <Section title="Combinação">
         <select className="select" value={s.archetypeLock ?? ''} onChange={(e) => s.set({ archetypeLock: (e.target.value || null) as ArchetypeId | null, variation: 0, selectedId: null })} aria-label="Arquétipo">
           <option value="">Automático (ciclo da escola)</option>
-          {ARCHETYPES.map((a) => (
-            <option key={a.id} value={a.id}>
-              {a.name}
-            </option>
-          ))}
+          <optgroup label="Composições livres">
+            {ARCHETYPES.filter((a) => !a.book).map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.name}
+              </option>
+            ))}
+          </optgroup>
+          <optgroup label="Páginas de livro">
+            {ARCHETYPES.filter((a) => a.book).map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.name}
+              </option>
+            ))}
+          </optgroup>
         </select>
         <p className="lead small">
           <strong>{arch.name}.</strong> {arch.description}
@@ -113,6 +123,7 @@ function Inspector() {
   const pinned = s.pinned.some((p) => p.id === b.id);
   const up = (p: Parameters<typeof s.updateBlock>[1]) => s.updateBlock(b.id, p);
   const hasText = !['image', 'shape'].includes(b.kind);
+  const book = !!d.school.book;
   return (
     <Section
       title={`Bloco: ${BLOCK_LABEL[b.kind]}`}
@@ -130,7 +141,18 @@ function Inspector() {
         </span>
       }
     >
-      {hasText && <textarea className="input" rows={b.kind === 'body' ? 5 : 2} value={b.text} onChange={(e) => up({ text: e.target.value })} aria-label="Texto" />}
+      {hasText && <textarea className="input" rows={b.kind === 'body' || b.kind === 'toc' || b.kind === 'notes' ? 5 : 2} value={b.text} onChange={(e) => up({ text: e.target.value })} aria-label="Texto" />}
+      {book && b.kind === 'body' && <p className="hint">{MARKUP_HELP}</p>}
+      {b.kind === 'chapter' && <p className="hint">Formato “número|título”. O número é composto como a escola pede (romano, arábico ou por extenso).</p>}
+      {b.kind === 'epigraph' && <p className="hint">Formato “texto|autor”.</p>}
+      {b.kind === 'toc' && <p className="hint">Uma entrada por linha: “número|título|página”.</p>}
+      {b.kind === 'notes' && <p className="hint">Uma nota por linha: “chamada|texto”.</p>}
+      {book && b.kind === 'body' && (
+        <div className="row2">
+          <Toggle label="Capitular e versaletes" checked={!!b.dropcap} onChange={(v) => up({ dropcap: v })} />
+          <Toggle label="Continua da página anterior" checked={!!b.cont} onChange={(v) => up({ cont: v })} />
+        </div>
+      )}
       <div className="grid4">
         <label>
           col
